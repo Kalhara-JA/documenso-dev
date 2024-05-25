@@ -21,6 +21,7 @@ import { DocumentsDataTable } from './data-table';
 import { DataTableSenderFilter } from './data-table-sender-filter';
 import { EmptyDocumentState } from './empty-state';
 import { UploadDocument } from './upload-document';
+import { isTeamMember } from '@documenso/lib/next-auth/guards/is-teamMember';
 
 export type DocumentsPageViewProps = {
   searchParams?: {
@@ -44,6 +45,8 @@ export const DocumentsPageView = async ({ searchParams = {}, team }: DocumentsPa
   const currentTeam = team
     ? { id: team.id, url: team.url, teamEmail: team.teamEmail?.email }
     : undefined;
+
+  const teamMember = team && isTeamMember(user.id, team.id);
 
   const getStatOptions: GetStatsInput = {
     user,
@@ -104,37 +107,39 @@ export const DocumentsPageView = async ({ searchParams = {}, team }: DocumentsPa
         </div>
 
         <div className="-m-1 flex flex-wrap gap-x-4 gap-y-6 overflow-hidden p-1">
-          <Tabs value={status} className="overflow-x-auto">
-            <TabsList>
-              {[
-                ExtendedDocumentStatus.INBOX,
-                ExtendedDocumentStatus.PENDING,
-                ExtendedDocumentStatus.COMPLETED,
-                ExtendedDocumentStatus.DRAFT,
-                ExtendedDocumentStatus.ALL,
-              ].map((value) => (
-                <TabsTrigger
-                  key={value}
-                  className="hover:text-foreground min-w-[60px]"
-                  value={value}
-                  asChild
-                >
-                  <Link href={getTabHref(value)} scroll={false}>
-                    <DocumentStatus status={value} />
+          {!teamMember &&
+            <Tabs value={status} className="overflow-x-auto">
+              <TabsList>
+                {[
+                  ExtendedDocumentStatus.INBOX,
+                  ExtendedDocumentStatus.PENDING,
+                  ExtendedDocumentStatus.COMPLETED,
+                  ExtendedDocumentStatus.DRAFT,
+                  ExtendedDocumentStatus.ALL,
+                ].map((value) => (
+                  <TabsTrigger
+                    key={value}
+                    className="hover:text-foreground min-w-[60px]"
+                    value={value}
+                    asChild
+                  >
+                    <Link href={getTabHref(value)} scroll={false}>
+                      <DocumentStatus status={value} />
 
-                    {value !== ExtendedDocumentStatus.ALL && (
-                      <span className="ml-1 inline-block opacity-50">
-                        {Math.min(stats[value], 99)}
-                        {stats[value] > 99 && '+'}
-                      </span>
-                    )}
-                  </Link>
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </Tabs>
+                      {value !== ExtendedDocumentStatus.ALL && (
+                        <span className="ml-1 inline-block opacity-50">
+                          {Math.min(stats[value], 99)}
+                          {stats[value] > 99 && '+'}
+                        </span>
+                      )}
+                    </Link>
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          }
 
-          {team && <DataTableSenderFilter teamId={team.id} />}
+          {team && !teamMember && <DataTableSenderFilter teamId={team.id} />}
 
           <div className="flex w-48 flex-wrap items-center justify-between gap-x-2 gap-y-4">
             <PeriodSelector />

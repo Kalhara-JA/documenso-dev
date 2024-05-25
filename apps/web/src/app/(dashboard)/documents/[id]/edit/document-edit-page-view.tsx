@@ -15,6 +15,7 @@ import { DocumentStatus as InternalDocumentStatus } from '@documenso/prisma/clie
 import { EditDocumentForm } from '~/app/(dashboard)/documents/[id]/edit-document';
 import { StackAvatarsWithTooltip } from '~/components/(dashboard)/avatar/stack-avatars-with-tooltip';
 import { DocumentStatus } from '~/components/formatter/document-status';
+import { isTeamMember } from '@documenso/lib/next-auth/guards/is-teamMember';
 
 export type DocumentEditPageViewProps = {
   params: {
@@ -40,6 +41,13 @@ export const DocumentEditPageView = async ({ params, team }: DocumentEditPageVie
     userId: user.id,
     teamId: team?.id,
   });
+
+  const teamMember = await (team && isTeamMember(user.id, team.id))
+
+  if (teamMember) {
+    
+    redirect(documentRootPath);
+  }
 
   const document = await getDocumentWithDetailsById({
     id: documentId,

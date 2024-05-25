@@ -32,10 +32,14 @@ export const setFieldsForTemplate = async ({
           userId,
         },
         {
-          team: {
-            members: {
-              some: {
-                userId,
+          teams: {
+            some: {
+              team: {
+                members: {
+                  some: {
+                    userId,
+                  },
+                },
               },
             },
           },

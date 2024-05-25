@@ -1,3 +1,5 @@
+"use server"
+
 import { prisma } from '@documenso/prisma';
 import type { Prisma } from '@documenso/prisma/client';
 
@@ -15,17 +17,35 @@ export const findTemplates = async ({
   perPage = 10,
 }: FindTemplatesOptions) => {
   let whereFilter: Prisma.TemplateWhereInput = {
-    userId,
-    teamId: null,
+    OR: [
+      { userId },
+      {
+        teams: {
+          some: {
+            team: {
+              members: {
+                some: {
+                  userId,
+                },
+              },
+            },
+          },
+        },
+      },
+    ],
   };
 
   if (teamId !== undefined) {
     whereFilter = {
-      team: {
-        id: teamId,
-        members: {
-          some: {
-            userId,
+      teams: {
+        some: {
+          teamId,
+          team: {
+            members: {
+              some: {
+                userId,
+              },
+            },
           },
         },
       },
@@ -37,16 +57,21 @@ export const findTemplates = async ({
       where: whereFilter,
       include: {
         templateDocumentData: true,
-        team: {
+        teams: {
           select: {
-            id: true,
-            url: true,
+            team: {
+              select: {
+                id: true,
+                url: true,
+              },
+            },
           },
         },
         Field: true,
         Recipient: true,
       },
       skip: Math.max(page - 1, 0) * perPage,
+      take: perPage,
       orderBy: {
         createdAt: 'desc',
       },

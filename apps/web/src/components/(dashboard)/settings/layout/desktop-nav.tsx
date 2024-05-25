@@ -1,6 +1,6 @@
 'use client';
 
-import type { HTMLAttributes } from 'react';
+import { useState, type HTMLAttributes } from 'react';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -10,11 +10,17 @@ import { Braces, CreditCard, Lock, User, Users, Webhook } from 'lucide-react';
 import { useFeatureFlags } from '@documenso/lib/client-only/providers/feature-flag';
 import { cn } from '@documenso/ui/lib/utils';
 import { Button } from '@documenso/ui/primitives/button';
+import { useSession } from 'next-auth/react';
+import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
+import { User as UserType } from '@documenso/prisma/client';
+
 
 export type DesktopNavProps = HTMLAttributes<HTMLDivElement>;
 
 export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
   const pathname = usePathname();
+  const { data: user } = useSession();
+  const [admin] = useState(user ? isAdmin(user.user as UserType) : false);
 
   const { getFlag } = useFeatureFlags();
 
@@ -61,7 +67,7 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
         </Button>
       </Link>
 
-      <Link href="/settings/tokens">
+      {admin && <Link href="/settings/tokens">
         <Button
           variant="ghost"
           className={cn(
@@ -72,9 +78,9 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
           <Braces className="mr-2 h-5 w-5" />
           API Tokens
         </Button>
-      </Link>
+      </Link>}
 
-      <Link href="/settings/webhooks">
+      {admin && <Link href="/settings/webhooks">
         <Button
           variant="ghost"
           className={cn(
@@ -85,7 +91,7 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
           <Webhook className="mr-2 h-5 w-5" />
           Webhooks
         </Button>
-      </Link>
+      </Link>}
 
       {isBillingEnabled && (
         <Link href="/settings/billing">

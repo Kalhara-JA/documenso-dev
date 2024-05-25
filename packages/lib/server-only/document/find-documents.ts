@@ -3,7 +3,7 @@ import { P, match } from 'ts-pattern';
 
 import { prisma } from '@documenso/prisma';
 import { RecipientRole, SigningStatus } from '@documenso/prisma/client';
-import type { Document, Prisma, Team, TeamEmail, User } from '@documenso/prisma/client';
+import { Document, Prisma, Team, TeamEmail, TeamMemberRole, User } from '@documenso/prisma/client';
 import { ExtendedDocumentStatus } from '@documenso/prisma/types/extended-document-status';
 
 import type { FindResultSet } from '../../types/find-result-set';
@@ -37,7 +37,7 @@ export const findDocuments = async ({
   period,
   senderIds,
 }: FindDocumentsOptions) => {
-  const { user, team } = await prisma.$transaction(async (tx) => {
+  const { user, team, teamRole } = await prisma.$transaction(async (tx) => {
     const user = await tx.user.findFirstOrThrow({
       where: {
         id: userId,
@@ -45,6 +45,7 @@ export const findDocuments = async ({
     });
 
     let team = null;
+    let teamRole = null;
 
     if (teamId !== undefined) {
       team = await tx.team.findFirstOrThrow({
@@ -62,9 +63,21 @@ export const findDocuments = async ({
       });
     }
 
+    teamRole = await tx.teamMember.findFirst({
+      where: {
+        userId,
+        teamId: teamId,
+      },
+      select: {
+        role: true,
+      },
+    });
+
+
     return {
       user,
       team,
+      teamRole,
     };
   });
 
@@ -82,7 +95,7 @@ export const findDocuments = async ({
     })
     .otherwise(() => undefined);
 
-  const filters = team ? findTeamDocumentsFilter(status, team) : findDocumentsFilter(status, user);
+  const filters = team && teamRole ? findTeamDocumentsFilter(status, team, teamRole.role, user.id) : findDocumentsFilter(status, user);
 
   if (filters === null) {
     return {
@@ -118,31 +131,31 @@ export const findDocuments = async ({
       AND: {
         OR: team.teamEmail
           ? [
-              {
-                teamId: team.id,
-                deletedAt: null,
+            {
+              teamId: team.id,
+              deletedAt: null,
+            },
+            {
+              User: {
+                email: team.teamEmail.email,
               },
-              {
-                User: {
+              deletedAt: null,
+            },
+            {
+              Recipient: {
+                some: {
                   email: team.teamEmail.email,
-                },
-                deletedAt: null,
-              },
-              {
-                Recipient: {
-                  some: {
-                    email: team.teamEmail.email,
-                    documentDeletedAt: null,
-                  },
+                  documentDeletedAt: null,
                 },
               },
-            ]
+            },
+          ]
           : [
-              {
-                teamId: team.id,
-                deletedAt: null,
-              },
-            ],
+            {
+              teamId: team.id,
+              deletedAt: null,
+            },
+          ],
       },
     };
   }
@@ -333,8 +346,18 @@ const findDocumentsFilter = (status: ExtendedDocumentStatus, user: User) => {
 const findTeamDocumentsFilter = (
   status: ExtendedDocumentStatus,
   team: Team & { teamEmail: TeamEmail | null },
+  teamRole: TeamMemberRole | null,
+  userId: number,
 ) => {
   const teamEmail = team.teamEmail?.email ?? null;
+
+  if (teamRole === TeamMemberRole.MEMBER) {
+    // If the user is a team member, only show documents they uploaded.
+    return {
+      teamId: team.id,
+      userId,
+    };
+  }
 
   return match<ExtendedDocumentStatus, Prisma.DocumentWhereInput | null>(status)
     .with(ExtendedDocumentStatus.ALL, () => {

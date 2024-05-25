@@ -11,14 +11,20 @@ import { UserSettingsTeamsPageDataTable } from '~/components/(teams)/tables/user
 
 import { TeamEmailUsage } from './team-email-usage';
 import { TeamInvitations } from './team-invitations';
+import { useSession } from 'next-auth/react';
+import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
+import { useState } from 'react';
+import { User } from '@documenso/prisma/client';
 
 export default function TeamsSettingsPage() {
   const { data: teamEmail } = trpc.team.getTeamEmailByEmail.useQuery();
+  const { data: user } = useSession();
+  const [admin] = useState(user ? isAdmin(user.user as User) : false);
 
   return (
     <div>
       <SettingsHeader title="Teams" subtitle="Manage all teams you are currently associated with.">
-        <CreateTeamDialog />
+        {admin && <CreateTeamDialog />}
       </SettingsHeader>
 
       <UserSettingsTeamsPageDataTable />
@@ -31,7 +37,6 @@ export default function TeamsSettingsPage() {
             </AnimateGenericFadeInOut>
           )}
         </AnimatePresence>
-
         <TeamInvitations />
       </div>
     </div>

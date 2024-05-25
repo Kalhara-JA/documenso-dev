@@ -15,10 +15,14 @@ export const getFieldsForTemplate = async ({ templateId, userId }: GetFieldsForT
             userId,
           },
           {
-            team: {
-              members: {
-                some: {
-                  userId,
+            teams: {
+              some: {
+                team: {
+                  members: {
+                    some: {
+                      userId,
+                    },
+                  },
                 },
               },
             },

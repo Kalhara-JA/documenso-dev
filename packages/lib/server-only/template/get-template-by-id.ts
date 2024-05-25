@@ -14,10 +14,14 @@ export const getTemplateById = async ({ id, userId }: GetTemplateByIdOptions) =>
         userId,
       },
       {
-        team: {
-          members: {
-            some: {
-              userId,
+        teams: {
+          some: {
+            team: {
+              members: {
+                some: {
+                  userId,
+                },
+              },
             },
           },
         },

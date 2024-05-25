@@ -1,1 +1,71 @@
 @import '@documenso/ui/styles/theme.css';
+
+@font-face {
+  font-family: "CeraPro";
+  src: url('/fonts/CeraProBlack.otf');
+  font-weight: 900; /* Black weight */
+  font-style: normal;
+}
+
+
+@font-face {
+  font-family: "CeraPro";
+  src: url('/fonts/CeraProBold.otf');
+  font-weight: bold; /* Bold weight */
+  font-style: normal;
+}
+
+
+
+/* @font-face {
+  font-family: "CeraPro";
+  src: url('/fonts/CeraProMedium.otf');
+  font-weight: 500; 
+  font-style: normal;
+} */
+@font-face {
+  font-family: "CeraPro";
+  src: url('/fonts/CeraPro-Regular-test.ttf');
+  font-weight: 500; /* Medium weight */
+  font-style: normal;
+}
+@font-face {
+  font-family: "Futura";
+  src: url('/fonts/FuturaBold.otf');
+  font-weight: 700; 
+  font-style: normal;
+}
+@font-face {
+  font-family: "KingsCaslon";
+  src: url('/fonts/KingsCaslon_Trial_Bd.ttf');
+  font-weight: 700; 
+  font-style: normal;
+}
+@font-face {
+  font-family: "Univers";
+  src: url('/fonts/UniversBold.ttf');
+  font-weight: 700; 
+  font-style: normal;
+}
+@font-face {
+  font-family: "CeraPro";
+  src: url('/fonts/CeraProLight.otf');
+  font-weight: 300; /* Light weight */
+  font-style: normal;
+}
+
+
+@font-face {
+  font-family: "CeraPro2";
+  src: url('/fonts/Cera Pro Regular.otf');
+  
+}
+
+:is(html , body):has(.cera-pro-font){
+  background-color : #F3F4F6;
+}
+
+.cera-pro-font * {
+  font-family: "CeraPro", sans-serif !important;
+}
+

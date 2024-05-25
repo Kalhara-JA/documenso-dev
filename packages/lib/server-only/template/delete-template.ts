@@ -8,7 +8,8 @@ export type DeleteTemplateOptions = {
 };
 
 export const deleteTemplate = async ({ id, userId }: DeleteTemplateOptions) => {
-  return await prisma.template.delete({
+  // Ensure the user is either the owner of the template or a member of a team that has the template
+  const template = await prisma.template.findFirstOrThrow({
     where: {
       id,
       OR: [
@@ -16,15 +17,26 @@ export const deleteTemplate = async ({ id, userId }: DeleteTemplateOptions) => {
           userId,
         },
         {
-          team: {
-            members: {
-              some: {
-                userId,
+          teams: {
+            some: {
+              team: {
+                members: {
+                  some: {
+                    userId,
+                  },
+                },
               },
             },
           },
         },
       ],
+    },
+  });
+
+  // Delete the template
+  return await prisma.template.delete({
+    where: {
+      id: template.id,
     },
   });
 };

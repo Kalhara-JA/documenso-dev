@@ -11,5 +11,8 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "files.eol": "\n",
   "editor.tabSize": 2,
-  "editor.insertSpaces": true
+  "editor.insertSpaces": true,
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  }
 }

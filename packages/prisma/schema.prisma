@@ -461,18 +461,19 @@ model Team {
   subscription Subscription?
 
   document  Document[]
-  templates Template[]
+  templates TeamTemplate[]
   ApiToken  ApiToken[]
   Webhook   Webhook[]
 }
 
 model TeamPending {
-  id          Int      @id @default(autoincrement())
+  id          Int            @id @default(autoincrement())
   name        String
-  url         String   @unique
-  createdAt   DateTime @default(now())
-  customerId  String   @unique
+  url         String         @unique
+  createdAt   DateTime       @default(now())
+  customerId  String         @unique
   ownerUserId Int
+  templates   TeamTemplate[]
 
   owner User @relation(fields: [ownerUserId], references: [id], onDelete: Cascade)
 }
@@ -534,6 +535,18 @@ model TeamMemberInvite {
   @@unique([teamId, email])
 }
 
+model TeamTemplate {
+  id            Int          @id @default(autoincrement())
+  teamId        Int
+  templateId    Int
+  team          Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  template      Template     @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  TeamPending   TeamPending? @relation(fields: [teamPendingId], references: [id])
+  teamPendingId Int?
+
+  @@unique([teamId, templateId])
+}
+
 enum TemplateType {
   PUBLIC
   PRIVATE
@@ -544,16 +557,15 @@ model Template {
   type                   TemplateType @default(PRIVATE)
   title                  String
   userId                 Int
-  teamId                 Int?
   templateDocumentDataId String
   createdAt              DateTime     @default(now())
   updatedAt              DateTime     @default(now()) @updatedAt
 
-  team                 Team?        @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  templateDocumentData DocumentData @relation(fields: [templateDocumentDataId], references: [id], onDelete: Cascade)
-  User                 User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  templateDocumentData DocumentData   @relation(fields: [templateDocumentDataId], references: [id], onDelete: Cascade)
+  User                 User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   Recipient            Recipient[]
   Field                Field[]
+  teams                TeamTemplate[]
 
   @@unique([templateDocumentDataId])
 }

@@ -151,7 +151,7 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
                     </Button>
                   </DropdownMenuItem>
 
-                  <DropdownMenuItem asChild>
+                  {isUserAdmin && < DropdownMenuItem asChild>
                     <Button
                       title="Create team"
                       variant="ghost"
@@ -163,6 +163,7 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
                       </Link>
                     </Button>
                   </DropdownMenuItem>
+                  }
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -186,36 +187,44 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
               ))}
             </div>
           </>
-        ) : (
-          <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
-            <Link
-              href="/settings/teams?action=add-team"
-              className="flex items-center justify-between"
-            >
-              Create team
-              <Plus className="ml-2 h-4 w-4" />
-            </Link>
-          </DropdownMenuItem>
-        )}
+        ) :
+          <>
+            {
+              isUserAdmin && <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
+                < Link
+                  href="/settings/teams?action=add-team"
+                  className="flex items-center justify-between"
+                >
+                  Create team
+                  <Plus className="ml-2 h-4 w-4" />
+                </Link>
+              </DropdownMenuItem>
+            }
+          </>
+        }
 
         <DropdownMenuSeparator />
 
-        {isUserAdmin && (
-          <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
-            <Link href="/admin">Admin panel</Link>
-          </DropdownMenuItem>
-        )}
+        {
+          isUserAdmin && (
+            <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
+              <Link href="/admin">Admin panel</Link>
+            </DropdownMenuItem>
+          )
+        }
 
         <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
           <Link href="/settings/profile">User settings</Link>
         </DropdownMenuItem>
 
-        {selectedTeam &&
+        {
+          selectedTeam &&
           canExecuteTeamAction('MANAGE_TEAM', selectedTeam.currentTeamMember.role) && (
             <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
               <Link href={`/t/${selectedTeam.url}/settings/`}>Team settings</Link>
             </DropdownMenuItem>
-          )}
+          )
+        }
 
         <DropdownMenuItem
           className="text-destructive/90 hover:!text-destructive px-4 py-2"
@@ -227,7 +236,7 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
         >
           Sign Out
         </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </DropdownMenuContent >
+    </DropdownMenu >
   );
 };

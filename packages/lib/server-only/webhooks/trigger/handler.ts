@@ -41,6 +41,7 @@ export const handlerTriggerWebhooks = async (
   }
 
   const { event, data, userId, teamId } = result.data;
+  console.log('data_webhook', data);
 
   const allWebhooks = await getAllWebhooksByEventTrigger({ event, userId, teamId });
 

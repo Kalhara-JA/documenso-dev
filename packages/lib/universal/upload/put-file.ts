@@ -32,7 +32,7 @@ export const putPdfFile = async (file: File) => {
       throw new AppError('INVALID_DOCUMENT_FILE');
     });
   }
-
+ console.log('putPdfFile')
   const { type, data } = await putFile(file);
 
   return await createDocumentData({ type, data });
@@ -44,6 +44,7 @@ export const putPdfFile = async (file: File) => {
 export const putFile = async (file: File) => {
   const NEXT_PUBLIC_UPLOAD_TRANSPORT = env('NEXT_PUBLIC_UPLOAD_TRANSPORT');
 
+  console.log(NEXT_PUBLIC_UPLOAD_TRANSPORT)
   return await match(NEXT_PUBLIC_UPLOAD_TRANSPORT)
     .with('s3', async () => putFileInS3(file))
     .otherwise(async () => putFileInDatabase(file));
@@ -68,7 +69,10 @@ const putFileInS3 = async (file: File) => {
   const { url, key } = await getPresignPostUrl(file.name, file.type);
 
   const body = await file.arrayBuffer();
-
+  console.log('putFileInS3')
+  console.log(url)
+  console.log(key)
+  console.log(body)
   const reponse = await fetch(url, {
     method: 'PUT',
     headers: {
@@ -76,6 +80,7 @@ const putFileInS3 = async (file: File) => {
     },
     body,
   });
+  console.log(reponse)
 
   if (!reponse.ok) {
     throw new Error(

@@ -3,34 +3,45 @@ import type { TCreateTemplateMutationSchema } from '@documenso/trpc/server/templ
 
 export type CreateTemplateOptions = TCreateTemplateMutationSchema & {
   userId: number;
-  teamId?: number;
+  teamIds?: number[];
 };
 
 export const createTemplate = async ({
   title,
   userId,
-  teamId,
+  teamIds,
   templateDocumentDataId,
 }: CreateTemplateOptions) => {
-  if (teamId) {
-    await prisma.team.findFirstOrThrow({
+  // Verify that the user is a member of the provided teams
+  if (teamIds && teamIds.length > 0) {
+    await prisma.team.findMany({
       where: {
-        id: teamId,
+        id: {
+          in: teamIds,
+        },
         members: {
           some: {
             userId,
           },
         },
       },
+    }).then((teams) => {
+      if (teams.length !== teamIds.length) {
+        throw new Error('User is not a member of one or more teams');
+      }
     });
   }
 
-  return await prisma.template.create({
+  const template = await prisma.template.create({
     data: {
       title,
       userId,
       templateDocumentDataId,
-      teamId,
+      teams: {
+        create: teamIds ? teamIds.map((teamId) => ({ team: { connect: { id: teamId } } })) : [],
+      },
     },
   });
+
+  return template;
 };

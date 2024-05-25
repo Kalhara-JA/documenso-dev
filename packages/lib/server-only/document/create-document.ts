@@ -5,7 +5,7 @@ import { DOCUMENT_AUDIT_LOG_TYPE } from '@documenso/lib/types/document-audit-log
 import type { RequestMetadata } from '@documenso/lib/universal/extract-request-metadata';
 import { createDocumentAuditLogData } from '@documenso/lib/utils/document-audit-logs';
 import { prisma } from '@documenso/prisma';
-import { WebhookTriggerEvents } from '@documenso/prisma/client';
+import { TeamMemberRole, WebhookTriggerEvents } from '@documenso/prisma/client';
 
 import { triggerWebhook } from '../webhooks/trigger/trigger-webhook';
 
@@ -34,6 +34,7 @@ export const createDocument = async ({
       teamMembers: {
         select: {
           teamId: true,
+          role: true,
         },
       },
     },
@@ -45,6 +46,10 @@ export const createDocument = async ({
   ) {
     throw new AppError(AppErrorCode.NOT_FOUND, 'Team not found');
   }
+
+  // if (teamId !== undefined && !user.teamMembers.some((teamMember) => teamMember.role === TeamMemberRole.MANAGER || teamMember.role === TeamMemberRole.ADMIN)) {
+  //   throw new AppError(AppErrorCode.UNAUTHORIZED, 'User is not authorized to create a document in this team');
+  // }
 
   return await prisma.$transaction(async (tx) => {
     const document = await tx.document.create({

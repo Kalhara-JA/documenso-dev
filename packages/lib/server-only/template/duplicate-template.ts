@@ -12,28 +12,29 @@ export const duplicateTemplate = async ({
   userId,
   teamId,
 }: DuplicateTemplateOptions) => {
-  let templateWhereFilter: Prisma.TemplateWhereUniqueInput = {
-    id: templateId,
-    userId,
-    teamId: null,
-  };
-
-  if (teamId !== undefined) {
-    templateWhereFilter = {
+  const template = await prisma.template.findFirst({
+    where: {
       id: templateId,
-      teamId,
-      team: {
-        members: {
-          some: {
-            userId,
+      OR: [
+        {
+          userId,
+        },
+        {
+          teams: {
+            some: {
+              team: {
+                id: teamId,
+                members: {
+                  some: {
+                    userId,
+                  },
+                },
+              },
+            },
           },
         },
-      },
-    };
-  }
-
-  const template = await prisma.template.findUnique({
-    where: templateWhereFilter,
+      ],
+    },
     include: {
       Recipient: true,
       Field: true,
@@ -56,9 +57,15 @@ export const duplicateTemplate = async ({
   const duplicatedTemplate = await prisma.template.create({
     data: {
       userId,
-      teamId,
       title: template.title + ' (copy)',
       templateDocumentDataId: documentData.id,
+      teams: teamId
+        ? {
+            create: {
+              team: { connect: { id: teamId } },
+            },
+          }
+        : undefined,
       Recipient: {
         create: template.Recipient.map((recipient) => ({
           email: recipient.email,
@@ -67,7 +74,6 @@ export const duplicateTemplate = async ({
         })),
       },
     },
-
     include: {
       Recipient: true,
     },
@@ -76,7 +82,6 @@ export const duplicateTemplate = async ({
   await prisma.field.createMany({
     data: template.Field.map((field) => {
       const recipient = template.Recipient.find((recipient) => recipient.id === field.recipientId);
-
       const duplicatedTemplateRecipient = duplicatedTemplate.Recipient.find(
         (doc) => doc.email === recipient?.email,
       );

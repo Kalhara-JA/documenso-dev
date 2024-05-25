@@ -11,7 +11,9 @@ import { useOptionalCurrentTeam } from '~/providers/team';
 
 export type DataTableTitleProps = {
   row: Template & {
-    team: { id: number; url: string } | null;
+    teams: {
+      team: { id: number; url: string } | null;
+    }[];
   };
 };
 
@@ -23,9 +25,11 @@ export const DataTableTitle = ({ row }: DataTableTitleProps) => {
     return null;
   }
 
-  const isCurrentTeamTemplate = team?.url && row.team?.url === team?.url;
+  const currentTeam = team?.url
+    ? row.teams.find(({ team: teamInRow }) => teamInRow?.url === team.url)?.team
+    : undefined;
 
-  const templatesPath = formatTemplatesPath(isCurrentTeamTemplate ? team?.url : undefined);
+  const templatesPath = formatTemplatesPath(currentTeam?.url);
 
   return (
     <Link

@@ -20,7 +20,11 @@ import { DeleteTemplateDialog } from './delete-template-dialog';
 import { DuplicateTemplateDialog } from './duplicate-template-dialog';
 
 export type DataTableActionDropdownProps = {
-  row: Template;
+  row: Template & {
+    teams: {
+      team: { id: number } | null;
+    }[];
+  };
   templateRootPath: string;
   teamId?: number;
 };
@@ -40,7 +44,7 @@ export const DataTableActionDropdown = ({
   }
 
   const isOwner = row.userId === session.user.id;
-  const isTeamTemplate = row.teamId === teamId;
+  const isTeamTemplate = teamId ? row.teams.some(({ team }) => team?.id === teamId) : false;
 
   return (
     <DropdownMenu>

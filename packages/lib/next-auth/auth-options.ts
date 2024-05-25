@@ -119,6 +119,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
           email: user.email,
           name: user.name,
           emailVerified: user.emailVerified?.toISOString() ?? null,
+          roles: user.roles,
         } satisfies User;
       },
     }),
@@ -133,6 +134,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
           name: profile.name || `${profile.given_name} ${profile.family_name}`.trim(),
           email: profile.email,
           emailVerified: profile.email_verified ? new Date().toISOString() : null,
+          roles: profile.roles,
         };
       },
     }),
@@ -185,6 +187,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
                 email: true,
                 name: true,
                 emailVerified: true,
+                roles: true,
               },
             },
           },
@@ -240,6 +243,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
           email: user.email,
           name: user.name,
           emailVerified: user.emailVerified?.toISOString() ?? null,
+          roles: user.roles,
         } satisfies User;
       },
     }),
@@ -312,6 +316,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
         email: merged.email,
         lastSignedIn: merged.lastSignedIn,
         emailVerified: merged.emailVerified,
+        roles: merged.roles,
       } satisfies JWT;
     },
 
@@ -324,6 +329,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
             name: token.name,
             email: token.email,
             emailVerified: token.emailVerified ?? null,
+            roles: token.roles,
           },
         } satisfies Session;
       }

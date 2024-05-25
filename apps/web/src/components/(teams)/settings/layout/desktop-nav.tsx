@@ -1,6 +1,6 @@
 'use client';
 
-import type { HTMLAttributes } from 'react';
+import { useState, type HTMLAttributes } from 'react';
 
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
@@ -10,12 +10,17 @@ import { Braces, CreditCard, Settings, Users, Webhook } from 'lucide-react';
 import { IS_BILLING_ENABLED } from '@documenso/lib/constants/app';
 import { cn } from '@documenso/ui/lib/utils';
 import { Button } from '@documenso/ui/primitives/button';
+import { useSession } from 'next-auth/react';
+import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
+import { User } from '@documenso/prisma/client';
 
 export type DesktopNavProps = HTMLAttributes<HTMLDivElement>;
 
 export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
   const pathname = usePathname();
   const params = useParams();
+  const { data: user } = useSession();
+  const [admin] = useState(user ? isAdmin(user.user as User) : false);
 
   const teamUrl = typeof params?.teamUrl === 'string' ? params?.teamUrl : '';
 
@@ -50,7 +55,7 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
         </Button>
       </Link>
 
-      <Link href={tokensPath}>
+      {admin && <Link href={tokensPath}>
         <Button
           variant="ghost"
           className={cn('w-full justify-start', pathname?.startsWith(tokensPath) && 'bg-secondary')}
@@ -58,9 +63,9 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
           <Braces className="mr-2 h-5 w-5" />
           API Tokens
         </Button>
-      </Link>
+      </Link>}
 
-      <Link href={webhooksPath}>
+      {admin && <Link href={webhooksPath}>
         <Button
           variant="ghost"
           className={cn(
@@ -71,7 +76,7 @@ export const DesktopNav = ({ className, ...props }: DesktopNavProps) => {
           <Webhook className="mr-2 h-5 w-5" />
           Webhooks
         </Button>
-      </Link>
+      </Link>}
 
       {IS_BILLING_ENABLED() && (
         <Link href={billingPath}>

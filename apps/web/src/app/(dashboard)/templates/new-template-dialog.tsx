@@ -100,10 +100,12 @@ export const NewTemplateDialog = ({ teamId, templateRootPath }: NewTemplateDialo
     try {
       const { type, data } = await putPdfFile(file);
 
+
       const { id: templateDocumentDataId } = await createDocumentData({
         type,
         data,
       });
+
 
       const { id } = await createTemplate({
         teamId,

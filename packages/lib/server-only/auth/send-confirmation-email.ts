@@ -39,7 +39,7 @@ export const sendConfirmationEmail = async ({ userId }: SendConfirmationEmailPro
   const confirmationLink = `${assetBaseUrl}/verify-email/${verificationToken.token}`;
   const senderName = NEXT_PRIVATE_SMTP_FROM_NAME || 'Documenso';
   const senderAdress = NEXT_PRIVATE_SMTP_FROM_ADDRESS || 'noreply@documenso.com';
-
+  
   const confirmationTemplate = createElement(ConfirmEmailTemplate, {
     assetBaseUrl,
     confirmationLink,

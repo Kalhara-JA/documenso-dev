@@ -1,6 +1,6 @@
 'use client';
 
-import type { HTMLAttributes } from 'react';
+import { useState, type HTMLAttributes } from 'react';
 
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
@@ -10,12 +10,17 @@ import { Braces, CreditCard, Key, User, Webhook } from 'lucide-react';
 import { IS_BILLING_ENABLED } from '@documenso/lib/constants/app';
 import { cn } from '@documenso/ui/lib/utils';
 import { Button } from '@documenso/ui/primitives/button';
+import { useSession } from 'next-auth/react';
+import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
+import { User as UserType } from '@documenso/prisma/client';
 
 export type MobileNavProps = HTMLAttributes<HTMLDivElement>;
 
 export const MobileNav = ({ className, ...props }: MobileNavProps) => {
   const pathname = usePathname();
   const params = useParams();
+  const { data: user } = useSession();
+  const [admin] = useState(user ? isAdmin(user.user as UserType) : false);
 
   const teamUrl = typeof params?.teamUrl === 'string' ? params?.teamUrl : '';
 
@@ -36,8 +41,8 @@ export const MobileNav = ({ className, ...props }: MobileNavProps) => {
           className={cn(
             'w-full justify-start',
             pathname?.startsWith(settingsPath) &&
-              pathname.split('/').length === 4 &&
-              'bg-secondary',
+            pathname.split('/').length === 4 &&
+            'bg-secondary',
           )}
         >
           <User className="mr-2 h-5 w-5" />
@@ -58,7 +63,7 @@ export const MobileNav = ({ className, ...props }: MobileNavProps) => {
         </Button>
       </Link>
 
-      <Link href={tokensPath}>
+      {admin && <Link href={tokensPath}>
         <Button
           variant="ghost"
           className={cn('w-full justify-start', pathname?.startsWith(tokensPath) && 'bg-secondary')}
@@ -66,9 +71,9 @@ export const MobileNav = ({ className, ...props }: MobileNavProps) => {
           <Braces className="mr-2 h-5 w-5" />
           API Tokens
         </Button>
-      </Link>
+      </Link>}
 
-      <Link href={webhooksPath}>
+      {admin && <Link href={webhooksPath}>
         <Button
           variant="ghost"
           className={cn(
@@ -79,7 +84,7 @@ export const MobileNav = ({ className, ...props }: MobileNavProps) => {
           <Webhook className="mr-2 h-5 w-5" />
           Webhooks
         </Button>
-      </Link>
+      </Link>}
 
       {IS_BILLING_ENABLED() && (
         <Link href={billingPath}>

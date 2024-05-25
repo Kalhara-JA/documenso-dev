@@ -8,9 +8,10 @@ import { IS_BILLING_ENABLED } from '@documenso/lib/constants/app';
 import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
 import { subscriptionsContainsActivePlan } from '@documenso/lib/utils/billing';
 import { prisma } from '@documenso/prisma';
-import { Prisma, TeamMemberRole } from '@documenso/prisma/client';
+import { Prisma, Role, TeamMemberRole } from '@documenso/prisma/client';
 
 import { stripe } from '../stripe';
+import { isAdmin } from '../../next-auth/guards/is-admin';
 
 export type CreateTeamOptions = {
   /**
@@ -29,6 +30,11 @@ export type CreateTeamOptions = {
    * Used as the URL path, example: https://documenso.com/t/{teamUrl}/settings
    */
   teamUrl: string;
+
+  /**
+   * IDs of the templates assigned to the team.
+   */
+  templateIds: number[];
 };
 
 export type CreateTeamResponse =
@@ -47,6 +53,7 @@ export const createTeam = async ({
   userId,
   teamName,
   teamUrl,
+  templateIds,
 }: CreateTeamOptions): Promise<CreateTeamResponse> => {
   const user = await prisma.user.findUniqueOrThrow({
     where: {
@@ -56,6 +63,10 @@ export const createTeam = async ({
       Subscription: true,
     },
   });
+
+  if (!isAdmin(user)) {
+    throw new AppError(AppErrorCode.UNAUTHORIZED, 'User is not an admin.');
+  }
 
   let isPaymentRequired = IS_BILLING_ENABLED();
   let customerId: string | null = null;
@@ -82,6 +93,11 @@ export const createTeam = async ({
           url: teamUrl,
           ownerUserId: user.id,
           customerId,
+          templates: {
+            create: templateIds.map((templateId) => ({
+              template: { connect: { id: templateId } },
+            })),
+          },
           members: {
             create: [
               {
@@ -114,14 +130,21 @@ export const createTeam = async ({
         throw new AppError(AppErrorCode.UNKNOWN_ERROR, 'Missing customer ID for pending teams.');
       }
 
-      return await tx.teamPending.create({
+      const newPendingTeam = await tx.teamPending.create({
         data: {
           name: teamName,
           url: teamUrl,
           ownerUserId: user.id,
           customerId,
+          // templates: {
+          //   create: templateIds.map((templateId) => ({
+          //     template: { connect: { id: templateId } },
+          //   })),
+          // },
         },
       });
+
+      return newPendingTeam;
     });
 
     return {
@@ -145,6 +168,7 @@ export const createTeam = async ({
   }
 };
 
+
 export type CreateTeamFromPendingTeamOptions = {
   pendingTeamId: number;
   subscription: Stripe.Subscription;
@@ -158,6 +182,9 @@ export const createTeamFromPendingTeam = async ({
     const pendingTeam = await tx.teamPending.findUniqueOrThrow({
       where: {
         id: pendingTeamId,
+      },
+      include: {
+        templates: true,
       },
     });
 
@@ -173,6 +200,11 @@ export const createTeamFromPendingTeam = async ({
         url: pendingTeam.url,
         ownerUserId: pendingTeam.ownerUserId,
         customerId: pendingTeam.customerId,
+        templates: {
+          create: pendingTeam.templates.map((template) => ({
+            template: { connect: { id: template.templateId } },
+          })),
+        },
         members: {
           create: [
             {
@@ -204,3 +236,5 @@ export const createTeamFromPendingTeam = async ({
     return team;
   });
 };
+
+

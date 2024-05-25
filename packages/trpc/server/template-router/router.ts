@@ -24,7 +24,6 @@ export const templateRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         const { teamId, title, templateDocumentDataId } = input;
-
         return await createTemplate({
           userId: ctx.user.id,
           teamId,

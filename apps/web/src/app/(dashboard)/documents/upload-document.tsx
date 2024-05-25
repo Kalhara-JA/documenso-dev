@@ -10,7 +10,7 @@ import { useSession } from 'next-auth/react';
 import { useLimits } from '@documenso/ee/server-only/limits/provider/client';
 import { useAnalytics } from '@documenso/lib/client-only/hooks/use-analytics';
 import { APP_DOCUMENT_UPLOAD_SIZE_LIMIT } from '@documenso/lib/constants/app';
-import { AppError } from '@documenso/lib/errors/app-error';
+import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
 import { createDocumentData } from '@documenso/lib/server-only/document-data/create-document-data';
 import { putPdfFile } from '@documenso/lib/universal/upload/put-file';
 import { formatDocumentsPath } from '@documenso/lib/utils/teams';
@@ -19,6 +19,9 @@ import { trpc } from '@documenso/trpc/react';
 import { cn } from '@documenso/ui/lib/utils';
 import { DocumentDropzone } from '@documenso/ui/primitives/document-dropzone';
 import { useToast } from '@documenso/ui/primitives/use-toast';
+import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
+import { isTeamMember } from '@documenso/lib/next-auth/guards/is-teamMember';
+import type { User } from '@documenso/prisma/client';
 
 export type UploadDocumentProps = {
   className?: string;
@@ -33,6 +36,8 @@ export const UploadDocument = ({ className, team }: UploadDocumentProps) => {
   const analytics = useAnalytics();
 
   const { data: session } = useSession();
+
+  const [admin] = useState(session ? isAdmin(session.user as User) : false);
 
   const { toast } = useToast();
 
@@ -59,17 +64,32 @@ export const UploadDocument = ({ className, team }: UploadDocumentProps) => {
       setIsLoading(true);
 
       const { type, data } = await putPdfFile(file);
-
+      
+      console.log('Document uploaded', type, data);
       const { id: documentDataId } = await createDocumentData({
         type,
         data,
       });
+
+      console.log('Document uploaded', documentDataId);
+
+      if (!team && !admin) {
+        throw new AppError(
+          AppErrorCode.INVALID_REQUEST,
+          'You are not allowed to upload documents without a team.',
+          'Please upload documents to a team.'
+        );
+      }
+
+      console.log('Document uploaded', documentDataId);
 
       const { id } = await createDocument({
         title: file.name,
         documentDataId,
         teamId: team?.id,
       });
+
+      console.log('Document uploaded', id);
 
       toast({
         title: 'Document uploaded',
@@ -83,7 +103,31 @@ export const UploadDocument = ({ className, team }: UploadDocumentProps) => {
         timestamp: new Date().toISOString(),
       });
 
-      router.push(`${formatDocumentsPath(team?.url)}/${id}/edit`);
+      console.log('Document uploaded', id);
+
+      let teamMember = true;
+
+      try {
+        if (session?.user && team?.id !== undefined) {
+          teamMember = await isTeamMember(session.user.id, team.id);
+        }
+      } catch (err) {
+        console.error('Error checking team membership:', err);
+        toast({
+          title: 'Error',
+          description: 'An error occurred while checking your team membership.',
+          variant: 'destructive',
+        });
+        // You can decide what to do in case of an error. For example, you can set teamMember to false.
+        teamMember = false;
+      }
+
+      if (!teamMember) {
+        router.push(`${formatDocumentsPath(team?.url)}/${id}/edit`);
+      }
+
+
+
     } catch (err) {
       const error = AppError.parseError(err);
 
@@ -124,13 +168,14 @@ export const UploadDocument = ({ className, team }: UploadDocumentProps) => {
 
   return (
     <div className={cn('relative', className)}>
-      <DocumentDropzone
+
+      {(admin || team) && <DocumentDropzone
         className="h-[min(400px,50vh)]"
         disabled={remaining.documents === 0 || !session?.user.emailVerified}
         disabledMessage={disabledMessage}
         onDrop={onFileDrop}
         onDropRejected={onFileDropRejected}
-      />
+      />}
 
       <div className="absolute -bottom-6 right-0">
         {team?.id === undefined &&

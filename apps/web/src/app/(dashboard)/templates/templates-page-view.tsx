@@ -3,12 +3,13 @@ import React from 'react';
 import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-component-session';
 import { findTemplates } from '@documenso/lib/server-only/template/find-templates';
 import { formatDocumentsPath, formatTemplatesPath } from '@documenso/lib/utils/teams';
-import type { Team } from '@documenso/prisma/client';
+import type { Team, User } from '@documenso/prisma/client';
 import { Avatar, AvatarFallback } from '@documenso/ui/primitives/avatar';
 
 import { TemplatesDataTable } from './data-table-templates';
 import { EmptyTemplateState } from './empty-state';
 import { NewTemplateDialog } from './new-template-dialog';
+import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
 
 export type TemplatesPageViewProps = {
   searchParams?: {
@@ -22,6 +23,8 @@ export const TemplatesPageView = async ({ searchParams = {}, team }: TemplatesPa
   const { user } = await getRequiredServerComponentSession();
   const page = Number(searchParams.page) || 1;
   const perPage = Number(searchParams.perPage) || 10;
+
+  const userIsAdmin = user && isAdmin(user as User)
 
   const documentRootPath = formatDocumentsPath(team?.url);
   const templateRootPath = formatTemplatesPath(team?.url);
@@ -48,9 +51,10 @@ export const TemplatesPageView = async ({ searchParams = {}, team }: TemplatesPa
           <h1 className="truncate text-2xl font-semibold md:text-3xl">Templates</h1>
         </div>
 
-        <div>
+        {userIsAdmin && <div>
           <NewTemplateDialog templateRootPath={templateRootPath} teamId={team?.id} />
         </div>
+        }
       </div>
 
       <div className="relative mt-5">

@@ -14,6 +14,7 @@ import type { DocumentWithData } from '@documenso/prisma/types/document-with-dat
 import { trpc as trpcClient } from '@documenso/trpc/client';
 import { Button } from '@documenso/ui/primitives/button';
 import { useToast } from '@documenso/ui/primitives/use-toast';
+import { isTeamMember } from '@documenso/lib/next-auth/guards/is-teamMember';
 
 export type DataTableActionButtonProps = {
   row: Document & {
@@ -42,6 +43,8 @@ export const DataTableActionButton = ({ row, team }: DataTableActionButtonProps)
   const isSigned = recipient?.signingStatus === SigningStatus.SIGNED;
   const role = recipient?.role;
   const isCurrentTeamDocument = team && row.team?.url === team.url;
+
+  const teamMember = team && isTeamMember(session.user.id, team.id);
 
   const documentsPath = formatDocumentsPath(team?.url);
 
@@ -89,16 +92,18 @@ export const DataTableActionButton = ({ row, team }: DataTableActionButtonProps)
     isComplete,
     isSigned,
     isCurrentTeamDocument,
+    teamMember,
   })
     .with(
-      isOwner ? { isDraft: true, isOwner: true } : { isDraft: true, isCurrentTeamDocument: true },
+      !teamMember && isOwner ? { isDraft: true, isOwner: true } : { isDraft: true, isCurrentTeamDocument: true },
       () => (
-        <Button className="w-32" asChild>
-          <Link href={`${documentsPath}/${row.id}/edit`}>
-            <Edit className="-ml-1 mr-2 h-4 w-4" />
-            Edit
-          </Link>
-        </Button>
+        !teamMember ?
+          <Button className="w-32" asChild>
+            <Link href={`${documentsPath}/${row.id}/edit`}>
+              <Edit className="-ml-1 mr-2 h-4 w-4" />
+              Edit
+            </Link>
+          </Button> : <div className='w-32'></div>
       ),
     )
     .with({ isRecipient: true, isPending: true, isSigned: false }, () => (

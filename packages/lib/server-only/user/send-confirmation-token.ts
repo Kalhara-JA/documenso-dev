@@ -32,15 +32,16 @@ export const sendConfirmationToken = async ({
   }
 
   const mostRecentToken = await getMostRecentVerificationTokenByUserId({ userId: user.id });
+  console.log('mostRecentToken', mostRecentToken);
 
   // If we've sent a token in the last 5 minutes, don't send another one
-  if (
-    !force &&
-    mostRecentToken?.createdAt &&
-    DateTime.fromJSDate(mostRecentToken.createdAt).diffNow('minutes').minutes > -5
-  ) {
-    return;
-  }
+  // if (
+  //   !force &&
+  //   mostRecentToken?.createdAt &&
+  //   DateTime.fromJSDate(mostRecentToken.createdAt).diffNow('minutes').minutes > -5
+  // ) {
+  //   return;
+  // }
 
   const createdToken = await prisma.verificationToken.create({
     data: {
@@ -54,6 +55,8 @@ export const sendConfirmationToken = async ({
       },
     },
   });
+
+  console.log('createdToken', createdToken);
 
   if (!createdToken) {
     throw new Error(`Failed to create the verification token`);

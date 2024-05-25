@@ -8,7 +8,7 @@ import { AlertTriangle, Loader } from 'lucide-react';
 
 import { useLimits } from '@documenso/ee/server-only/limits/provider/client';
 import { useUpdateSearchParams } from '@documenso/lib/client-only/hooks/use-update-search-params';
-import type { Recipient, Template } from '@documenso/prisma/client';
+import type { Recipient, Template, User } from '@documenso/prisma/client';
 import { Alert, AlertDescription, AlertTitle } from '@documenso/ui/primitives/alert';
 import { DataTable } from '@documenso/ui/primitives/data-table';
 import { DataTablePagination } from '@documenso/ui/primitives/data-table-pagination';
@@ -19,17 +19,18 @@ import { TemplateType } from '~/components/formatter/template-type';
 import { DataTableActionDropdown } from './data-table-action-dropdown';
 import { DataTableTitle } from './data-table-title';
 import { UseTemplateDialog } from './use-template-dialog';
+import { useSession } from 'next-auth/react';
+import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
 
 type TemplateWithRecipient = Template & {
   Recipient: Recipient[];
+  teams: {
+    team: { id: number; url: string } | null;
+  }[];
 };
 
 type TemplatesDataTableProps = {
-  templates: Array<
-    TemplateWithRecipient & {
-      team: { id: number; url: string } | null;
-    }
-  >;
+  templates: TemplateWithRecipient[];
   perPage: number;
   page: number;
   totalPages: number;
@@ -49,6 +50,10 @@ export const TemplatesDataTable = ({
 }: TemplatesDataTableProps) => {
   const [isPending, startTransition] = useTransition();
   const updateSearchParams = useUpdateSearchParams();
+
+  const { data: session } = useSession();
+
+  const userIsAdmin = session && isAdmin(session.user as User);
 
   const { remaining } = useLimits();
 
@@ -104,11 +109,11 @@ export const TemplatesDataTable = ({
                     documentRootPath={documentRootPath}
                   />
 
-                  <DataTableActionDropdown
+                  {userIsAdmin && <DataTableActionDropdown
                     row={row.original}
                     teamId={teamId}
                     templateRootPath={templateRootPath}
-                  />
+                  />}
                 </div>
               );
             },

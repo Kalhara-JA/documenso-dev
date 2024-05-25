@@ -22,6 +22,7 @@ export const createTeamPendingCheckoutSession = async ({
     },
     include: {
       owner: true,
+      templates: true,
     },
   });
 

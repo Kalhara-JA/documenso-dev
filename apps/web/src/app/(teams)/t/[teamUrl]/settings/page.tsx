@@ -16,6 +16,9 @@ import { UpdateTeamForm } from '~/components/(teams)/forms/update-team-form';
 
 import { TeamEmailDropdown } from './team-email-dropdown';
 import { TeamTransferStatus } from './team-transfer-status';
+import { TeamTemplateEditDialog } from '~/components/(teams)/dialogs/edit-team-templates-dialog';
+import { Button } from '@documenso/ui/primitives/button';
+import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
 
 export type TeamsSettingsPageProps = {
   params: {
@@ -28,6 +31,8 @@ export default async function TeamsSettingsPage({ params }: TeamsSettingsPagePro
 
   const session = await getRequiredServerComponentSession();
 
+  const userIsAdmin = session && isAdmin(session.user);
+
   const team = await getTeamByUrl({ userId: session.user.id, teamUrl });
 
   const isTransferVerificationExpired =
@@ -35,6 +40,12 @@ export default async function TeamsSettingsPage({ params }: TeamsSettingsPagePro
 
   return (
     <div>
+      {userIsAdmin && <div className='w-full flex justify-end items-end'>
+        <TeamTemplateEditDialog
+          teamId={team.id}
+          trigger={<Button className="">Edit Templates</Button>}
+        />
+      </div>}
       <SettingsHeader title="Team Profile" subtitle="Here you can edit your team's details." />
 
       <TeamTransferStatus

@@ -127,6 +127,7 @@ export function UseTemplateDialog({
 
   const onSubmit = async (data: TAddRecipientsForNewDocumentSchema) => {
     try {
+      console.log('data', templateId, data.recipients, data.sendDocument, team?.id);
       const { id } = await createDocumentFromTemplate({
         templateId,
         teamId: team?.id,

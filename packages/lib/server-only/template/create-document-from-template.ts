@@ -39,24 +39,28 @@ export const createDocumentFromTemplate = async ({
     },
   });
 
-  const template = await prisma.template.findUnique({
+  const template = await prisma.template.findFirst({
     where: {
       id: templateId,
-      ...(teamId
-        ? {
-            team: {
-              id: teamId,
-              members: {
-                some: {
-                  userId,
+      OR: [
+        {
+          userId,
+        },
+        {
+          teams: {
+            some: {
+              team: {
+                id: teamId,
+                members: {
+                  some: {
+                    userId,
+                  },
                 },
               },
             },
-          }
-        : {
-            userId,
-            teamId: null,
-          }),
+          },
+        },
+      ],
     },
     include: {
       Recipient: {
@@ -107,7 +111,7 @@ export const createDocumentFromTemplate = async ({
     const document = await tx.document.create({
       data: {
         userId,
-        teamId: template.teamId,
+        teamId: teamId ?? null,
         title: template.title,
         documentDataId: documentData.id,
         Recipient: {
