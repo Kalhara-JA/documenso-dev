@@ -11,6 +11,7 @@ import { KeyRoundIcon } from 'lucide-react';
 import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { FcGoogle } from 'react-icons/fc';
+// import { SiKeycloak } from "react-icons/si";
 import { match } from 'ts-pattern';
 import { z } from 'zod';
 
@@ -68,9 +69,10 @@ export type SignInFormProps = {
   className?: string;
   initialEmail?: string;
   isGoogleSSOEnabled?: boolean;
+  isKeycloakSSOEnabled?: boolean; // Add a prop to enable Keycloak SSO
 };
 
-export const SignInForm = ({ className, initialEmail, isGoogleSSOEnabled }: SignInFormProps) => {
+export const SignInForm = ({ className, initialEmail, isGoogleSSOEnabled, isKeycloakSSOEnabled }: SignInFormProps) => {
   const { toast } = useToast();
   const { getFlag } = useFeatureFlags();
 
@@ -256,6 +258,19 @@ export const SignInForm = ({ className, initialEmail, isGoogleSSOEnabled }: Sign
     }
   };
 
+  const onSignInWithKeycloakClick = async () => { // Implement Keycloak sign-in logic
+    try {
+      await signIn('keycloak', { callbackUrl: LOGIN_REDIRECT_PATH });
+    } catch (err) {
+      toast({
+        title: 'An unknown error occurred',
+        description:
+          'We encountered an unknown error while attempting to sign you In. Please try again later.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   return (
     <Form {...form}>
       <form
@@ -316,7 +331,7 @@ export const SignInForm = ({ className, initialEmail, isGoogleSSOEnabled }: Sign
             {isSubmitting ? 'Signing in...' : 'Sign In'}
           </Button>
 
-          {(isGoogleSSOEnabled || isPasskeyEnabled) && (
+          {(isGoogleSSOEnabled || isPasskeyEnabled || isKeycloakSSOEnabled) && (
             <div className="relative flex items-center justify-center gap-x-4 py-2 text-xs uppercase">
               <div className="bg-border h-px flex-1" />
               <span className="text-muted-foreground bg-transparent">Or continue with</span>
@@ -335,6 +350,20 @@ export const SignInForm = ({ className, initialEmail, isGoogleSSOEnabled }: Sign
             >
               <FcGoogle className="mr-2 h-5 w-5" />
               Google
+            </Button>
+          )}
+
+          {isKeycloakSSOEnabled && (
+            <Button
+              type="button"
+              size="lg"
+              variant="outline"
+              className="bg-background text-muted-foreground border"
+              disabled={isSubmitting}
+              onClick={onSignInWithKeycloakClick}
+            >
+              {/* <SiKeycloak className="mr-2 h-5 w-5" /> */}
+              Keycloak
             </Button>
           )}
 

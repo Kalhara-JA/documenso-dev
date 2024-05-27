@@ -40,7 +40,7 @@ export default function SignInPage({ searchParams }: SignInPageProps) {
 
         <hr className="-mx-6 my-4" />
 
-        <SignInForm initialEmail={email || undefined} isGoogleSSOEnabled={IS_GOOGLE_SSO_ENABLED} />
+        <SignInForm initialEmail={email || undefined} isGoogleSSOEnabled={IS_GOOGLE_SSO_ENABLED} isKeycloakSSOEnabled={true}/>
 
         {NEXT_PUBLIC_DISABLE_SIGNUP !== 'true' && (
           <p className="text-muted-foreground mt-6 text-center text-sm">

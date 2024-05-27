@@ -7,11 +7,13 @@ import type { AuthOptions, Session, User } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import type { GoogleProfile } from 'next-auth/providers/google';
+import type { KeycloakProfile } from 'next-auth/providers/keycloak';
 import GoogleProvider from 'next-auth/providers/google';
+import KeycloakProvider from 'next-auth/providers/keycloak';
 import { env } from 'next-runtime-env';
 
 import { prisma } from '@documenso/prisma';
-import { IdentityProvider, UserSecurityAuditLogType } from '@documenso/prisma/client';
+import { IdentityProvider, Role, UserSecurityAuditLogType } from '@documenso/prisma/client';
 
 import { AppError, AppErrorCode } from '../errors/app-error';
 import { isTwoFactorAuthenticationEnabled } from '../server-only/2fa/is-2fa-availble';
@@ -23,6 +25,7 @@ import type { TAuthenticationResponseJSONSchema } from '../types/webauthn';
 import { ZAuthenticationResponseJSONSchema } from '../types/webauthn';
 import { extractNextAuthRequestMetadata } from '../universal/extract-request-metadata';
 import { getAuthenticatorOptions } from '../utils/authenticator';
+import { uuidToNumber } from '../universal/crypto';
 import { ErrorCode } from './error-codes';
 
 export const NEXT_AUTH_OPTIONS: AuthOptions = {
@@ -130,13 +133,30 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
 
       profile(profile) {
         return {
-          id: Number(profile.sub),
+          id: uuidToNumber(profile.sub),
           name: profile.name || `${profile.given_name} ${profile.family_name}`.trim(),
           email: profile.email,
           emailVerified: profile.email_verified ? new Date().toISOString() : null,
-          roles: profile.roles,
+          roles: profile.roles ?? [], // Ensure roles are included
         };
       },
+    }),
+    KeycloakProvider<KeycloakProfile>({
+      clientId: process.env.NEXT_PRIVATE_KEYCLOAK_CLIENT_ID ?? '',
+      clientSecret: process.env.NEXT_PRIVATE_KEYCLOAK_CLIENT_SECRET ?? '',
+      issuer: process.env.NEXT_PRIVATE_KEYCLOAK_ISSUER,
+  
+      profile(profile) {
+        const uniqueId = uuidToNumber(profile.sub);
+        return {
+          id: uniqueId,
+          name: profile.name || `${profile.given_name} ${profile.family_name}`.trim(),
+          email: profile.email,
+          emailVerified: profile.email_verified ? new Date().toISOString() : null,
+          roles: [Role.USER], // Ensure roles are included
+        };
+      },
+      
     }),
     CredentialsProvider({
       id: 'webauthn',
@@ -151,11 +171,11 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
           throw new AppError(AppErrorCode.INVALID_REQUEST);
         }
 
-        let requestBodyCrediential: TAuthenticationResponseJSONSchema | null = null;
+        let requestBodyCredential: TAuthenticationResponseJSONSchema | null = null;
 
         try {
           const parsedBodyCredential = JSON.parse(req.body?.credential);
-          requestBodyCrediential = ZAuthenticationResponseJSONSchema.parse(parsedBodyCredential);
+          requestBodyCredential = ZAuthenticationResponseJSONSchema.parse(parsedBodyCredential);
         } catch {
           throw new AppError(AppErrorCode.INVALID_REQUEST);
         }
@@ -178,7 +198,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
 
         const passkey = await prisma.passkey.findFirst({
           where: {
-            credentialId: Buffer.from(requestBodyCrediential.id, 'base64'),
+            credentialId: Buffer.from(requestBodyCredential.id, 'base64'),
           },
           include: {
             User: {
@@ -202,7 +222,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
         const { rpId, origin } = getAuthenticatorOptions();
 
         const verification = await verifyAuthenticationResponse({
-          response: requestBodyCrediential,
+          response: requestBodyCredential,
           expectedChallenge: challengeToken.token,
           expectedOrigin: origin,
           expectedRPID: rpId,
@@ -255,7 +275,6 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
         ...user,
         emailVerified: user?.emailVerified ? new Date(user.emailVerified).toISOString() : null,
       } satisfies JWT;
-
       if (!merged.email || typeof merged.emailVerified !== 'string') {
         const userId = Number(merged.id ?? token.sub);
 
@@ -306,6 +325,24 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
           data: {
             emailVerified: merged.emailVerified,
             identityProvider: IdentityProvider.GOOGLE,
+            roles: merged.roles,
+          },
+        });
+      }
+
+      if ((trigger === 'signIn' || trigger === 'signUp') && account?.provider === 'keycloak') {
+        merged.emailVerified = user?.emailVerified
+          ? new Date(user.emailVerified).toISOString()
+          : new Date().toISOString();
+
+        await prisma.user.update({
+          where: {
+            id: Number(merged.id),
+          },
+          data: {
+            emailVerified: merged.emailVerified,
+            identityProvider: IdentityProvider.KEYCLOAK,
+            roles: merged.roles,
           },
         });
       }

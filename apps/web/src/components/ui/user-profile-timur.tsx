@@ -41,7 +41,7 @@ export const UserProfileTimur = ({ className, rows = 2 }: UserProfileTimurProps)
         <div className="flex items-center justify-center gap-x-2">
           <h2 className="text-2xl font-semibold">Timur Ercan</h2>
 
-          <VerifiedIcon className="text-primary h-8 w-8" />
+          {/* <VerifiedIcon className="text-primary h-8 w-8" /> */}
         </div>
 
         <p className="text-muted-foreground mt-4 max-w-[40ch] text-center text-sm">Hey I’m Timur</p>
