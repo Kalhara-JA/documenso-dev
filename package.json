@@ -32,6 +32,7 @@
   "devDependencies": {
     "@commitlint/cli": "^17.7.1",
     "@commitlint/config-conventional": "^17.7.0",
+    "@types/qs": "^6.9.15",
     "dotenv": "^16.3.1",
     "dotenv-cli": "^7.3.0",
     "eslint": "^8.40.0",
@@ -50,7 +51,8 @@
   ],
   "dependencies": {
     "@documenso/pdf-sign": "^0.1.0",
-    "next-runtime-env": "^3.2.0"
+    "next-runtime-env": "^3.2.0",
+    "qs": "^6.12.1"
   },
   "overrides": {
     "next-auth": {

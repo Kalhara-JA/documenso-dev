@@ -14,7 +14,7 @@ import { TeamInvitations } from './team-invitations';
 import { useSession } from 'next-auth/react';
 import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
 import { useState } from 'react';
-import { User } from '@documenso/prisma/client';
+import type { User } from '@documenso/prisma/client';
 
 export default function TeamsSettingsPage() {
   const { data: teamEmail } = trpc.team.getTeamEmailByEmail.useQuery();

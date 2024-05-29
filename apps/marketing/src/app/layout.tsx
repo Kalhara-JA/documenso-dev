@@ -76,7 +76,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
       <body>
         <FeatureFlagProvider initialFlags={flags}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <PlausibleProvider>
               <TrpcProvider>{children}</TrpcProvider>
             </PlausibleProvider>

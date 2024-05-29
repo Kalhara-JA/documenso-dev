@@ -41,6 +41,8 @@ import { Input } from '@documenso/ui/primitives/input';
 import { PasswordInput } from '@documenso/ui/primitives/password-input';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 
+const LOGIN_REDIRECT_PATH = '/documents';
+
 const ERROR_MESSAGES: Partial<Record<keyof typeof ErrorCode, string>> = {
   [ErrorCode.CREDENTIALS_NOT_FOUND]: 'The email or password provided is incorrect',
   [ErrorCode.INCORRECT_EMAIL_PASSWORD]: 'The email or password provided is incorrect',
@@ -53,8 +55,6 @@ const ERROR_MESSAGES: Partial<Record<keyof typeof ErrorCode, string>> = {
 };
 
 const TwoFactorEnabledErrorCode = ErrorCode.TWO_FACTOR_MISSING_CREDENTIALS;
-
-const LOGIN_REDIRECT_PATH = '/documents';
 
 export const ZSignInFormSchema = z.object({
   email: z.string().email().min(1),
@@ -199,6 +199,7 @@ export const SignInForm = ({ className, initialEmail, isGoogleSSOEnabled, isKeyc
 
       const result = await signIn('credentials', {
         ...credentials,
+        inapp: true,
         callbackUrl: LOGIN_REDIRECT_PATH,
         redirect: false,
       });

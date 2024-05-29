@@ -81,7 +81,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body>
         <LocaleProvider locale={locale}>
           <FeatureFlagProvider initialFlags={flags}>
-            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
               <TooltipProvider>
                 <TrpcProvider>{children}</TrpcProvider>
               </TooltipProvider>

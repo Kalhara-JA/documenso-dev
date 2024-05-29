@@ -1,10 +1,13 @@
 // ForgetPass.tsx
 "use client";
-import { useForm, SubmitHandler } from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
-import { ReactNode } from 'react';
+import type { ReactNode} from 'react';
+import { useState } from 'react';
+import { Navigation } from '~/components/Navigation';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -26,14 +29,25 @@ const ForgetPass = () => {
     console.log('Form submitted:', data);
     // loginCheck(data.email, data.password);
   };
+  const [langBtnState , setLangBtnState]= useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [navOpen , setNavOpen] = useState<boolean>(false);
+  const [isLangBtnHovered , setIsLangBtnHovered] = useState(false);
+
+
+  const [langOpen , setLangOpen] = useState<boolean>(false);
+
 
   return (
     <section>
-      <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 cera-pro-font no-65">
+    <div className='custom-container'>
+    <Navigation navOpen={navOpen} langOpen={langOpen} setLangOpen={setLangOpen} setNavOpen={setNavOpen} isHovered={isHovered} setIsHovered={setIsHovered} isLangBtnHovered={isLangBtnHovered} setIsLangBtnHovered={setIsLangBtnHovered} />
+      </div>
+      <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto mt-[50px] lg:py-0 cera-pro-font no-65">
         <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
-              Forget Password 😫
+              Forget Password
             </h1>
             <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(onSubmit)}>
               <div>
@@ -41,7 +55,7 @@ const ForgetPass = () => {
                   htmlFor="email"
                   className="block mb-2 text-sm font-light text-gray-900"
                 >
-                  Email Address
+                  Your Email
                 </label>
                 <input
                   {...register('email')}
@@ -58,7 +72,7 @@ const ForgetPass = () => {
 
               <button
                 type="submit"
-                className="w-full text-white bg-[#111827] hover:bg-black focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                className="btn-primary bg-[#2ae8d3] w-full "
               >
                 Send reset email
               </button>

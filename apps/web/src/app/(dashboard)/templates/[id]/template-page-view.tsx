@@ -10,13 +10,13 @@ import { getFieldsForTemplate } from '@documenso/lib/server-only/field/get-field
 import { getRecipientsForTemplate } from '@documenso/lib/server-only/recipient/get-recipients-for-template';
 import { getTemplateById } from '@documenso/lib/server-only/template/get-template-by-id';
 import { formatTemplatesPath } from '@documenso/lib/utils/teams';
-import { Role, User, type Team } from '@documenso/prisma/client';
+import type { User} from '@documenso/prisma/client';
+import { type Team } from '@documenso/prisma/client';
 
 import { TemplateType } from '~/components/formatter/template-type';
 
 import { EditTemplateForm } from './edit-template';
 import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
-import { toast } from '@documenso/ui/primitives/use-toast';
 
 export type TemplatePageViewProps = {
   params: {
