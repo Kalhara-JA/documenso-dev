@@ -14,6 +14,7 @@ import { Header } from '~/components/(dashboard)/layout/header';
 import { VerifyEmailBanner } from '~/components/(dashboard)/layout/verify-email-banner';
 import { RefreshOnFocus } from '~/components/(dashboard)/refresh-on-focus/refresh-on-focus';
 import { NextAuthProvider } from '~/providers/next-auth';
+// import GlobalMenu from '~/components/(dashboard)/global-header';
 
 export type AuthenticatedDashboardLayoutProps = {
   children: React.ReactNode;
@@ -37,7 +38,7 @@ export default async function AuthenticatedDashboardLayout({
     <NextAuthProvider session={session}>
       <LimitsProvider>
         {!user.emailVerified && <VerifyEmailBanner email={user.email} />}
-
+        {/* <GlobalMenu user={user} teams={teams}></GlobalMenu> */}
         <Banner />
 
         <Header user={user} teams={teams} />

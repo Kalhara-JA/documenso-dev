@@ -77,6 +77,17 @@ export const ZCreateTeamMemberInvitesMutationSchema = z.object({
   ),
 });
 
+export const ZgenerateInviteLinkMutationSchema = z.object({
+  teamId: z.number(),
+  role: z.nativeEnum(TeamMemberRole),
+  email: z.string().email().toLowerCase().optional(),
+  token: z.string().optional(),
+});
+
+export const ZVerifyInviteLinkQuerySchema = z.object({
+  token: z.string(),
+});
+
 export const ZCreateTeamPendingCheckoutMutationSchema = z.object({
   interval: z.union([z.literal('monthly'), z.literal('yearly')]),
   pendingTeamId: z.number(),

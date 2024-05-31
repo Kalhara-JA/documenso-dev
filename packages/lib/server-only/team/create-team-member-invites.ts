@@ -12,7 +12,7 @@ import { TEAM_MEMBER_ROLE_PERMISSIONS_MAP } from '@documenso/lib/constants/teams
 import { AppError, AppErrorCode } from '@documenso/lib/errors/app-error';
 import { isTeamRoleWithinUserHierarchy } from '@documenso/lib/utils/teams';
 import { prisma } from '@documenso/prisma';
-import { TeamMemberInviteStatus } from '@documenso/prisma/client';
+import { TeamMemberInviteStatus, TeamMemberRole } from '@documenso/prisma/client';
 import type { TCreateTeamMemberInvitesMutationSchema } from '@documenso/trpc/server/team-router/schema';
 
 export type CreateTeamMemberInvitesOptions = {
@@ -20,6 +20,13 @@ export type CreateTeamMemberInvitesOptions = {
   userName: string;
   teamId: number;
   invitations: TCreateTeamMemberInvitesMutationSchema['invitations'];
+};
+
+export type CreateInviteLinkOptions = {
+  teamId: number;
+  role: TeamMemberRole;
+  email?: string;
+  token?: string;
 };
 
 /**
@@ -159,3 +166,51 @@ export const sendTeamMemberInviteEmail = async ({
     text: render(template, { plainText: true }),
   });
 };
+
+export const generateInvitationLink = async ({
+  teamId,
+  role,
+  email,
+  token,
+}: CreateInviteLinkOptions): Promise<string> => {
+
+  if (token && email) {
+    await prisma.invitation.update({
+      where: {
+        token,
+      },
+      data: {
+        email,
+      },
+    });
+
+    return token;
+  } else {
+
+    const newToken = nanoid(32);
+    await prisma.invitation.create({
+      data: {
+        teamId,
+        teamRole: role,
+        token: newToken,
+      },
+    });
+    return newToken;
+  }
+}
+
+export const verifyInvitationLink = async (token: string) => {
+  const invitation = await prisma.invitation.findFirst({
+    where: {
+      token,
+    },
+  });
+
+  if (!invitation) {
+    throw new AppError(AppErrorCode.NOT_FOUND, 'Invitation not found');
+  }
+
+  return invitation;
+}
+
+

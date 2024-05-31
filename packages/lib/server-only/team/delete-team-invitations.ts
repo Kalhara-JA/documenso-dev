@@ -35,7 +35,7 @@ export const deleteTeamMemberInvitations = async ({
       },
     });
 
-    await tx.teamMemberInvite.deleteMany({
+    await tx.invitation.deleteMany({
       where: {
         id: {
           in: invitationIds,

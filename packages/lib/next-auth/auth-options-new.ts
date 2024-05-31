@@ -8,7 +8,7 @@ import KeycloakProvider from 'next-auth/providers/keycloak';
 import { env } from 'next-runtime-env';
 
 import { prisma } from '@documenso/prisma';
-import { IdentityProvider, Role, UserSecurityAuditLogType } from '@documenso/prisma/client';
+import { IdentityProvider, Role, UserSecurityAuditLogType, TeamMemberRole, TeamMemberInviteStatus } from '@documenso/prisma/client';
 import { extractNextAuthRequestMetadata } from '../universal/extract-request-metadata';
 import { AppError, AppErrorCode } from '../errors/app-error';
 import { getUserByEmail } from '../server-only/user/get-user-by-email';
@@ -32,17 +32,19 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
         firstName: { label: 'First Name', type: 'text', optional: true },
         lastName: { label: 'Last Name', type: 'text', optional: true },
         confirmPassword: { label: 'Confirm Password', type: 'password', optional: true },
+        teamId: { label: 'Team ID', type: 'text', optional: true },
+        teamRole: { label: 'Team Role', type: 'text', optional: true },
+        token: { label: 'Token', type: 'text', optional: true },
       },
       authorize: async (credentials, req) => {
         if (!credentials) {
           throw new Error(ErrorCode.CREDENTIALS_NOT_FOUND);
         }
 
-        const { email, password, firstName,lastName, confirmPassword } = credentials;
+        const { email, password, firstName, lastName, confirmPassword, token, teamId, teamRole } = credentials;
         const requestMetadata = extractNextAuthRequestMetadata(req);
 
-        if (firstName && confirmPassword) {
-
+        if (token && teamId && teamRole) {
           try {
             const adminToken = await axios.post(`${process.env.NEXT_PRIVATE_APISIX_URL}/realms/master/protocol/openid-connect/token`,
               qs.stringify({
@@ -74,7 +76,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
                   temporary: false,
                 },
               ],
-            }
+            };
 
             const response = await axios.post(`${process.env.NEXT_PRIVATE_APISIX_URL}/admin/realms/master/users`, newUser, {
               headers: {
@@ -83,13 +85,29 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
               },
             });
 
-
             if (response.status === 201) {
               const user = await prisma.user.create({
                 data: {
                   email,
                   name: firstName + ' ' + lastName,
                   emailVerified: new Date().toISOString(),
+                },
+              });
+
+              await prisma.teamMember.create({
+                data: {
+                  teamId: Number(teamId),
+                  userId: user.id,
+                  role: teamRole as TeamMemberRole,
+                },
+              });
+
+              await prisma.invitation.update({
+                where: {
+                  token: token,
+                },
+                data: {
+                  status: TeamMemberInviteStatus.ACCEPTED,
                 },
               });
 
@@ -111,14 +129,11 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
             } else {
               throw new Error(ErrorCode.INTERNAL_SEVER_ERROR);
             }
-
-
           } catch (error: any) {
             console.error('Error creating user:', error);
             throw new Error(ErrorCode.INTERNAL_SEVER_ERROR);
           }
         } else {
-          
           try {
             const response = await axios.post(`${process.env.NEXT_PRIVATE_APISIX_URL}/realms/master/protocol/openid-connect/token`,
               qs.stringify({

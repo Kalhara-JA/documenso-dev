@@ -21,6 +21,9 @@ const FONT_CAVEAT_BYTES = fs.readFileSync(
 /** @type {import('next').NextConfig} */
 const config = {
   output: process.env.DOCKER_OUTPUT ? 'standalone' : undefined,
+  images : {
+    domains : ['res.cloudinary.com']
+  },
   experimental: {
     outputFileTracingRoot: path.join(__dirname, '../../'),
     serverComponentsExternalPackages: ['@node-rs/bcrypt', '@documenso/pdf-sign', 'playwright'],

@@ -5,7 +5,7 @@ import { createTeam } from '@documenso/lib/server-only/team/create-team';
 import { createTeamBillingPortal } from '@documenso/lib/server-only/team/create-team-billing-portal';
 import { createTeamPendingCheckoutSession } from '@documenso/lib/server-only/team/create-team-checkout-session';
 import { createTeamEmailVerification } from '@documenso/lib/server-only/team/create-team-email-verification';
-import { createTeamMemberInvites } from '@documenso/lib/server-only/team/create-team-member-invites';
+import { createTeamMemberInvites, generateInvitationLink, verifyInvitationLink } from '@documenso/lib/server-only/team/create-team-member-invites';
 import { deleteTeam } from '@documenso/lib/server-only/team/delete-team';
 import { deleteTeamEmail } from '@documenso/lib/server-only/team/delete-team-email';
 import { deleteTeamEmailVerification } from '@documenso/lib/server-only/team/delete-team-email-verification';
@@ -31,7 +31,7 @@ import { updateTeam } from '@documenso/lib/server-only/team/update-team';
 import { updateTeamEmail } from '@documenso/lib/server-only/team/update-team-email';
 import { updateTeamMember } from '@documenso/lib/server-only/team/update-team-member';
 
-import { authenticatedProcedure, router } from '../trpc';
+import { authenticatedProcedure, procedure, router } from '../trpc';
 import {
   ZAcceptTeamInvitationMutationSchema,
   ZCreateTeamBillingPortalMutationSchema,
@@ -60,6 +60,8 @@ import {
   ZUpdateTeamEmailMutationSchema,
   ZUpdateTeamMemberMutationSchema,
   ZUpdateTeamMutationSchema,
+  ZVerifyInviteLinkQuerySchema,
+  ZgenerateInviteLinkMutationSchema,
 } from './schema';
 
 export const teamRouter = router({
@@ -120,6 +122,35 @@ export const teamRouter = router({
             name: input.name,
           },
         });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
+  generateInvitationLink: authenticatedProcedure
+    .input(ZgenerateInviteLinkMutationSchema)
+    .mutation(async ({ input }) => {
+      try {
+        return await generateInvitationLink({
+          teamId: input.teamId,
+          role: input.role,
+          email: input.email,
+          token: input.token,
+        });
+      } catch (err) {
+        console.error(err);
+
+        throw AppError.parseErrorToTRPCError(err);
+      }
+    }),
+
+  verifyInvitationLink: procedure
+    .input(ZVerifyInviteLinkQuerySchema)
+    .mutation(async ({ input }) => {
+      try {
+        return await verifyInvitationLink(input.token);
       } catch (err) {
         console.error(err);
 

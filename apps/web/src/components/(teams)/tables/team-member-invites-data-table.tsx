@@ -23,10 +23,20 @@ import { TableCell } from '@documenso/ui/primitives/table';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 
 import { LocaleDate } from '~/components/formatter/locale-date';
+import { $Enums, TeamMemberRole } from '@documenso/prisma/client';
 
 export type TeamMemberInvitesDataTableProps = {
   teamId: number;
 };
+
+interface TeamMemberInvite {
+  email: string | null; // Allow null
+  teamRole: TeamMemberRole;
+  token: string;
+  status: $Enums.TeamMemberInviteStatus;
+  createdAt: Date;
+  id: number;
+}
 
 export const TeamMemberInvitesDataTable = ({ teamId }: TeamMemberInvitesDataTableProps) => {
   const searchParams = useSearchParams();
@@ -105,12 +115,13 @@ export const TeamMemberInvitesDataTable = ({ teamId }: TeamMemberInvitesDataTabl
         {
           header: 'Team Member',
           cell: ({ row }) => {
+            const email = row.original.email ?? '';
             return (
               <AvatarWithText
                 avatarClass="h-12 w-12"
-                avatarFallback={row.original.email.slice(0, 1).toUpperCase()}
+                avatarFallback={email.slice(0, 1).toUpperCase()}
                 primaryText={
-                  <span className="text-foreground/80 font-semibold">{row.original.email}</span>
+                  <span className="text-foreground/80 font-semibold">{email}</span>
                 }
               />
             );
@@ -119,7 +130,17 @@ export const TeamMemberInvitesDataTable = ({ teamId }: TeamMemberInvitesDataTabl
         {
           header: 'Role',
           accessorKey: 'role',
-          cell: ({ row }) => TEAM_MEMBER_ROLE_MAP[row.original.role] ?? row.original.role,
+          cell: ({ row }) => TEAM_MEMBER_ROLE_MAP[row.original.teamRole as keyof typeof TEAM_MEMBER_ROLE_MAP] ?? row.original.teamRole,
+        },
+        {
+          header: 'Token',
+          accessorKey: 'token',
+          cell: ({ row }) => row.original.token,
+        },
+        {
+          header: 'Status',
+          accessorKey: 'status',
+          cell: ({ row }) => row.original.status,
         },
         {
           header: 'Invited At',
@@ -137,7 +158,7 @@ export const TeamMemberInvitesDataTable = ({ teamId }: TeamMemberInvitesDataTabl
               <DropdownMenuContent className="w-52" align="start" forceMount>
                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                <DropdownMenuItem
+                {/* <DropdownMenuItem
                   onClick={async () =>
                     resendTeamMemberInvitation({
                       teamId,
@@ -147,7 +168,7 @@ export const TeamMemberInvitesDataTable = ({ teamId }: TeamMemberInvitesDataTabl
                 >
                   <History className="mr-2 h-4 w-4" />
                   Resend
-                </DropdownMenuItem>
+                </DropdownMenuItem> */}
 
                 <DropdownMenuItem
                   onClick={async () =>

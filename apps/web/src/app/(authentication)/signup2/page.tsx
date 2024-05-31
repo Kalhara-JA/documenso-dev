@@ -41,7 +41,7 @@ export default function PageSignup() {
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
               {welcomeBack ? 'Welcome Back' : 'Welcome'}
             </h1>
-            <SignupForm />
+            {/* <SignupForm /> */}
             <p className="text-sm font-light text-gray-500">
               Already have an account? <Link href="/signin" className="font-medium text-primary-600 hover:underline">Sign in</Link>
             </p>
