@@ -24,44 +24,55 @@ export const MobileNavigation = ({ isMenuOpen, onMenuOpenChange }: MobileNavigat
   };
 
   const rootHref = getRootHref(params, { returnEmptyRootString: true });
-
-  const menuNavigationLinks = [
+  const applicationRoutes = [
+    {
+      href: '/documents',
+      label: 'Documents',
+    },
+    {
+      href: '/templates',
+      label: 'Templates',
+    },
+  ];
+  const globalRoutes = [
     {
       href: `${rootHref}/documents`,
-      text: 'Documents',
+      text: 'Home',
     },
     {
       href: `${rootHref}/templates`,
-      text: 'Templates',
+      text: 'About',
     },
     {
       href: '/settings/teams',
-      text: 'Teams',
+      text: 'Service',
     },
     {
       href: '/settings/profile',
-      text: 'Settings',
+      text: 'Contact Us',
+    },
+    {
+      href: '/settings/teams',
+      text: 'User Settings',
+    },
+    {
+      href: '/settings/profile',
+      text: 'Admin Panel',
     },
   ];
 
   return (
     <Sheet open={isMenuOpen} onOpenChange={onMenuOpenChange}>
       <SheetContent className="flex w-full max-w-[350px] flex-col">
-        <Link href="/" onClick={handleMenuItemClick}>
-          <Image
-            src={LogoImage}
-            alt="Documenso Logo"
-            className="dark:invert"
-            width={170}
-            height={25}
-          />
-        </Link>
+       
 
         <div className="mt-8 flex w-full flex-col items-start gap-y-4">
-          {menuNavigationLinks.map(({ href, text }) => (
+     
+         
+          {globalRoutes.map(({ href, text }) => (
             <Link
               key={href}
-              className="text-foreground hover:text-foreground/80 text-2xl font-semibold"
+              className="text-foreground hover:text-foreground/80 text-md font-semibold"
               href={href}
               onClick={() => handleMenuItemClick()}
             >
@@ -69,27 +80,9 @@ export const MobileNavigation = ({ isMenuOpen, onMenuOpenChange }: MobileNavigat
             </Link>
           ))}
 
-          <button
-            className="text-foreground hover:text-foreground/80 text-2xl font-semibold"
-            onClick={async () =>
-              signOut({
-                callbackUrl: '/',
-              })
-            }
-          >
-            Sign Out
-          </button>
+         
         </div>
-
-        <div className="mt-auto flex w-full flex-col space-y-4 self-end">
-          <div className="w-fit">
-            <ThemeSwitcher />
-          </div>
-
-          <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} Documenso, Inc. <br /> All rights reserved.
-          </p>
-        </div>
+      
       </SheetContent>
     </Sheet>
   );

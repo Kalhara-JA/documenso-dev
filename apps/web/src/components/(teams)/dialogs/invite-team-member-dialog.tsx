@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import type * as DialogPrimitive from '@radix-ui/react-dialog';
-import { Download, Mail, MailIcon, PlusCircle, Trash, Upload, UsersIcon } from 'lucide-react';
+import { Mail, Trash, Copy } from 'lucide-react';
 import Papa, { type ParseResult } from 'papaparse';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -16,7 +16,7 @@ import { trpc } from '@documenso/trpc/react';
 import { ZCreateTeamMemberInvitesMutationSchema } from '@documenso/trpc/server/team-router/schema';
 import { cn } from '@documenso/ui/lib/utils';
 import { Button } from '@documenso/ui/primitives/button';
-import { Card, CardContent } from '@documenso/ui/primitives/card';
+
 import {
   Dialog,
   DialogContent,
@@ -42,8 +42,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@documenso/ui/primitives/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@documenso/ui/primitives/tabs';
 import { useToast } from '@documenso/ui/primitives/use-toast';
+import axios from 'axios';
 
 export type InviteTeamMembersDialogProps = {
   currentUserTeamRole: TeamMemberRole;
@@ -55,7 +55,6 @@ const ZInviteTeamMembersFormSchema = z
   .object({
     invitations: ZCreateTeamMemberInvitesMutationSchema.shape.invitations,
   })
-  // Display exactly which rows are duplicates.
   .superRefine((items, ctx) => {
     const uniqueEmails = new Map<string, number>();
 
@@ -101,8 +100,12 @@ export const InviteTeamMembersDialog = ({
   ...props
 }: InviteTeamMembersDialogProps) => {
   const [open, setOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [invitationType, setInvitationType] = useState<TabTypes>('INDIVIDUAL');
+  // const fileInputRef = useRef<HTMLInputElement>(null);
+  // const [invitationType, setInvitationType] = useState<TabTypes>('INDIVIDUAL');
+  const [inviteLink, setInviteLink] = useState('');
+  const [generatingLink, setGeneratingLink] = useState(false);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [token, setToken] = useState('');
 
   const { toast } = useToast();
 
@@ -127,29 +130,46 @@ export const InviteTeamMembersDialog = ({
     name: 'invitations',
   });
 
-  const { mutateAsync: createTeamMemberInvites } = trpc.team.createTeamMemberInvites.useMutation();
-
-  const onAddTeamMemberInvite = () => {
-    appendTeamMemberInvite({
-      email: '',
-      role: TeamMemberRole.MEMBER,
-    });
-  };
+  // const { mutateAsync: createTeamMemberInvites } = trpc.team.createTeamMemberInvites.useMutation();
+  const { mutateAsync: generateInviteLink } = trpc.team.generateInvitationLink.useMutation();
 
   const onFormSubmit = async ({ invitations }: TInviteTeamMembersFormSchema) => {
+    setSendingEmail(true);
+
+    const formData = new FormData();
+
+    formData.append('mauticform[email]', invitations[0].email);
+    formData.append('mauticform[invitation_url]', inviteLink);
+    formData.append('mauticform[formId]', '3');
+    formData.append('mauticform[formName]', 'documensoinvitelinkform');
+    formData.append('mauticform[return]', '');
+
     try {
-      await createTeamMemberInvites({
-        teamId,
-        invitations,
-      });
+      const response = await axios.post(
+        'https://mautic.gutricious.com/form/submit?formId=3',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
 
-      toast({
-        title: 'Success',
-        description: 'Team invitations have been sent.',
-        duration: 5000,
-      });
-
-      setOpen(false);
+      if (response.status === 200) {
+        toast({
+          title: 'Success',
+          description: 'Team invitations have been sent.',
+          duration: 5000,
+        });
+        setOpen(false);
+      } else {
+        toast({
+          title: 'An unknown error occurred',
+          variant: 'destructive',
+          description:
+            'We encountered an unknown error while attempting to invite team members. Please try again later.',
+        });
+      }
     } catch {
       toast({
         title: 'An unknown error occurred',
@@ -157,59 +177,116 @@ export const InviteTeamMembersDialog = ({
         description:
           'We encountered an unknown error while attempting to invite team members. Please try again later.',
       });
+    } finally {
+      await generateInviteLink({ teamId, role: invitations[0].role, email: invitations[0].email, token: token });
+
+      setToken('');
+      setInviteLink('');
+
+      setSendingEmail(false);
     }
   };
 
   useEffect(() => {
     if (!open) {
       form.reset();
-      setInvitationType('INDIVIDUAL');
+      // setInvitationType('INDIVIDUAL');
     }
   }, [open, form]);
 
-  const onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files?.length) {
-      return;
+  // const onFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (!e.target.files?.length) {
+  //     return;
+  //   }
+
+  //   const csvFile = e.target.files[0];
+
+  //   Papa.parse(csvFile, {
+  //     skipEmptyLines: true,
+  //     comments: 'Work email,Job title',
+  //     complete: (results: ParseResult<string[]>) => {
+  //       const members = results.data.map((row) => {
+  //         const [email, role] = row;
+
+  //         return {
+  //           email: email.trim(),
+  //           role: role.trim().toUpperCase(),
+  //         };
+  //       });
+
+  //       // Remove the first row if it contains the headers.
+  //       if (members.length > 1 && members[0].role.toUpperCase() === 'ROLE') {
+  //         members.shift();
+  //       }
+
+  //       try {
+  //         const importedInvitations = ZImportTeamMemberSchema.parse(members);
+
+  //         form.setValue('invitations', importedInvitations);
+  //         form.clearErrors('invitations');
+
+  //         setInvitationType('INDIVIDUAL');
+  //       } catch (err) {
+  //         console.error((err as Error).message);
+
+  //         toast({
+  //           variant: 'destructive',
+  //           title: 'Something went wrong',
+  //           description: 'Please check the CSV file and make sure it is according to our format',
+  //         });
+  //       }
+  //     },
+  //   });
+  // };
+
+  const getInviteToken = async (teamId: number, role: TeamMemberRole) => {
+    try {
+      const data = await generateInviteLink({ teamId, role });
+      return data;
+    } catch (error) {
+      console.error(error);
+      return '';
     }
+  };
 
-    const csvFile = e.target.files[0];
-
-    Papa.parse(csvFile, {
-      skipEmptyLines: true,
-      comments: 'Work email,Job title',
-      complete: (results: ParseResult<string[]>) => {
-        const members = results.data.map((row) => {
-          const [email, role] = row;
-
-          return {
-            email: email.trim(),
-            role: role.trim().toUpperCase(),
-          };
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text)
+      .then(() => {
+        toast({
+          title: 'Link Copied',
+          description: 'The invite link has been copied to the clipboard.',
+          duration: 3000,
         });
+      })
+      .catch((error) => {
+        console.error('Failed to copy the text to clipboard', error);
+        toast({
+          title: 'Failed to Copy',
+          description: 'Failed to copy the invite link to the clipboard.',
+          duration: 3000,
+          variant: 'destructive',
+        });
+      });
+  };  
 
-        // Remove the first row if it contains the headers.
-        if (members.length > 1 && members[0].role.toUpperCase() === 'ROLE') {
-          members.shift();
-        }
-
-        try {
-          const importedInvitations = ZImportTeamMemberSchema.parse(members);
-
-          form.setValue('invitations', importedInvitations);
-          form.clearErrors('invitations');
-
-          setInvitationType('INDIVIDUAL');
-        } catch (err) {
-          console.error(err.message);
-
-          toast({
-            variant: 'destructive',
-            title: 'Something went wrong',
-            description: 'Please check the CSV file and make sure it is according to our format',
-          });
-        }
-      },
-    });
+  const handleGenerateLink = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    setGeneratingLink(true);
+    try {
+      const token = await getInviteToken(teamId, form.getValues().invitations[0].role);
+      setToken(token);
+      const link = `${process.env.NEXT_PUBLIC_WEBAPP_URL}/signup?token=${token}`;
+      setInviteLink(link);
+    } catch {
+      toast({
+        title: 'An unknown error occurred',
+        variant: 'destructive',
+        description:
+          'We encountered an unknown error while attempting to generate the invite link. Please try again later.',
+      });
+    } finally {
+      setGeneratingLink(false);
+    }
   };
 
   const downloadTemplate = () => {
@@ -251,144 +328,94 @@ export const InviteTeamMembersDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs
-          defaultValue="INDIVIDUAL"
-          value={invitationType}
-          // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-          onValueChange={(value) => setInvitationType(value as TabTypes)}
-        >
-          <TabsList className="w-full">
-            <TabsTrigger value="INDIVIDUAL" className="hover:text-foreground w-full">
-              <MailIcon size={20} className="mr-2" />
-              Invite Members
-            </TabsTrigger>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onFormSubmit)}>
+            <fieldset
+              className="flex h-full flex-col space-y-4"
+              disabled={form.formState.isSubmitting || sendingEmail}
+            >
+              <FormField
+                control={form.control}
+                name={`invitations.0.role`}
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel required>Role</FormLabel>
+                    <FormControl>
+                      <Select {...field} onValueChange={field.onChange}>
+                        <SelectTrigger className="text-muted-foreground max-w-[200px]">
+                          <SelectValue />
+                        </SelectTrigger>
 
-            <TabsTrigger value="BULK" className="hover:text-foreground w-full">
-              <UsersIcon size={20} className="mr-2" /> Bulk Import
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="INDIVIDUAL">
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onFormSubmit)}>
-                <fieldset
-                  className="flex h-full flex-col space-y-4"
-                  disabled={form.formState.isSubmitting}
-                >
-                  <div className="custom-scrollbar -m-1 max-h-[60vh] space-y-4 overflow-y-auto p-1">
-                    {teamMemberInvites.map((teamMemberInvite, index) => (
-                      <div className="flex w-full flex-row space-x-4" key={teamMemberInvite.id}>
-                        <FormField
-                          control={form.control}
-                          name={`invitations.${index}.email`}
-                          render={({ field }) => (
-                            <FormItem className="w-full">
-                              {index === 0 && <FormLabel required>Email address</FormLabel>}
-                              <FormControl>
-                                <Input className="bg-background" {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name={`invitations.${index}.role`}
-                          render={({ field }) => (
-                            <FormItem className="w-full">
-                              {index === 0 && <FormLabel required>Role</FormLabel>}
-                              <FormControl>
-                                <Select {...field} onValueChange={field.onChange}>
-                                  <SelectTrigger className="text-muted-foreground max-w-[200px]">
-                                    <SelectValue />
-                                  </SelectTrigger>
-
-                                  <SelectContent position="popper">
-                                    {TEAM_MEMBER_ROLE_HIERARCHY[currentUserTeamRole].map((role) => (
-                                      <SelectItem key={role} value={role}>
-                                        {TEAM_MEMBER_ROLE_MAP[role] ?? role}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <button
-                          type="button"
-                          className={cn(
-                            'justify-left inline-flex h-10 w-10 items-center text-slate-500 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50',
-                            index === 0 ? 'mt-8' : 'mt-0',
-                          )}
-                          disabled={teamMemberInvites.length === 1}
-                          onClick={() => removeTeamMemberInvite(index)}
-                        >
-                          <Trash className="h-5 w-5" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-
-                  <Button
+                        <SelectContent position="popper">
+                          {TEAM_MEMBER_ROLE_HIERARCHY[currentUserTeamRole].map((role) => (
+                            <SelectItem key={role} value={role}>
+                              {TEAM_MEMBER_ROLE_MAP[role] ?? role}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button onClick={handleGenerateLink} loading={generatingLink} disabled={generatingLink}>
+                {generatingLink ? 'Generating...' : 'Generate Invite Link'}
+              </Button>
+              {inviteLink && (
+                <div className="flex items-center space-x-2">
+                  <Input value={inviteLink} readOnly />
+                  <button
                     type="button"
-                    size="sm"
-                    variant="outline"
-                    className="w-fit"
-                    onClick={() => onAddTeamMemberInvite()}
+                    className="justify-left inline-flex h-10 w-10 items-center text-slate-500 hover:opacity-80"
+                    onClick={() => copyToClipboard(inviteLink)}
                   >
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Add more
-                  </Button>
-
-                  <DialogFooter>
-                    <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
-                      Cancel
-                    </Button>
-
-                    <Button type="submit" loading={form.formState.isSubmitting}>
-                      {!form.formState.isSubmitting && <Mail className="mr-2 h-4 w-4" />}
-                      Invite
-                    </Button>
-                  </DialogFooter>
-                </fieldset>
-              </form>
-            </Form>
-          </TabsContent>
-
-          <TabsContent value="BULK">
-            <div className="mt-4 space-y-4">
-              <Card gradient className="h-32">
-                <CardContent
-                  className="text-muted-foreground/80 hover:text-muted-foreground/90 flex h-full cursor-pointer flex-col items-center justify-center rounded-lg p-0 transition-colors"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="h-5 w-5" />
-
-                  <p className="mt-1 text-sm">Click here to upload</p>
-
-                  <input
-                    onChange={onFileInputChange}
-                    type="file"
-                    ref={fileInputRef}
-                    accept=".csv"
-                    hidden
-                  />
-                </CardContent>
-              </Card>
-
+                    <Copy className="h-5 w-5" />
+                  </button>
+                </div>
+              )}
+              <div className="custom-scrollbar -m-1 max-h-[60vh] space-y-4 overflow-y-auto p-1">
+                {teamMemberInvites.map((teamMemberInvite, index) => (
+                  <div className="flex w-full flex-row space-x-4" key={teamMemberInvite.id}>
+                    <FormField
+                      control={form.control}
+                      name={`invitations.${index}.email`}
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          {index === 0 && <FormLabel>Email address</FormLabel>}
+                          <FormControl>
+                            <Input className="bg-background" {...field} disabled={!inviteLink} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <button
+                      type="button"
+                      className={cn(
+                        'justify-left inline-flex h-10 w-10 items-center text-slate-500 hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-50',
+                        index === 0 ? 'mt-8' : 'mt-0',
+                      )}
+                      disabled={teamMemberInvites.length === 1 || !inviteLink}
+                      onClick={() => removeTeamMemberInvite(index)}
+                    >
+                      <Trash className="h-5 w-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
               <DialogFooter>
-                <Button type="button" variant="secondary" onClick={downloadTemplate}>
-                  <Download className="mr-2 h-4 w-4" />
-                  Template
+                <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit" loading={form.formState.isSubmitting || sendingEmail} disabled={!inviteLink}>
+                  {!form.formState.isSubmitting && !sendingEmail && <Mail className="mr-2 h-4 w-4" />}
+                  {form.formState.isSubmitting || sendingEmail ? 'Sending...' : 'Invite'}
                 </Button>
               </DialogFooter>
-            </div>
-          </TabsContent>
-        </Tabs>
+            </fieldset>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );

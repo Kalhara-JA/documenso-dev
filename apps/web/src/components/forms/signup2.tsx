@@ -7,6 +7,9 @@ import * as z from 'zod';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@documenso/ui/primitives/use-toast';
+import { useEffect } from 'react';
+import { $Enums } from '@documenso/prisma/client';
+
 
 const ERROR_MESSAGES: Partial<Record<string, string>> = {
   CREDENTIALS_NOT_FOUND: 'The email or password provided is incorrect',
@@ -28,17 +31,30 @@ const SignupSchema = z.object({
   path: ["confirmPassword"],
 });
 
+type InviteData = {
+  id?: number;
+  email?: string | null;
+  token: string;
+  teamId: number;
+  teamRole: $Enums.TeamMemberRole;
+  status?: $Enums.TeamMemberInviteStatus;
+  createdAt?: Date;
+};
+
 type SignupFormData = z.infer<typeof SignupSchema>;
 
-export default function SignupForm() {
-
-  const router = useRouter()
-
+export default function SignupForm({ inviteData }: { inviteData: InviteData }) {
+  const router = useRouter();
   const { toast } = useToast();
-
-  const { register, handleSubmit, formState: { errors } } = useForm<SignupFormData>({
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm<SignupFormData>({
     resolver: zodResolver(SignupSchema),
   });
+
+  useEffect(() => {
+    if (inviteData?.email) {
+      setValue('email', inviteData.email);
+    }
+  }, [inviteData, setValue]);
 
   const onSubmit: SubmitHandler<SignupFormData> = async data => {
     try {
@@ -48,6 +64,9 @@ export default function SignupForm() {
         firstName: data.firstName,
         lastName: data.lastName,
         confirmPassword: data.confirmPassword,
+        token: inviteData?.token,
+        teamId: inviteData?.teamId,
+        teamRole: inviteData?.teamRole,
         inapp: false,
         callbackUrl: '/documents',
         redirect: false,
@@ -121,6 +140,7 @@ export default function SignupForm() {
           className="bg-gray-50 border border-gray-300 sm:text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5 text-black placeholder:text-gray-500"
           style={{ background: '#F9FAFB' }}
           placeholder="name@company.com"
+          disabled={!!inviteData?.email}
         />
         {errors.email && (
           <p className="mt-2 text-sm text-red-600">{errors.email.message}</p>

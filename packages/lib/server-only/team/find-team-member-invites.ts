@@ -60,24 +60,49 @@ export const findTeamMemberInvites = async ({
   };
 
   const [data, count] = await Promise.all([
-    prisma.teamMemberInvite.findMany({
-      where: whereClause,
+    // prisma.teamMemberInvite.findMany({
+    //   where: whereClause,
+    //   skip: Math.max(page - 1, 0) * perPage,
+    //   take: perPage,
+    //   orderBy: {
+    //     [orderByColumn]: orderByDirection,
+    //   },
+    //   // Exclude token attribute.
+    //   select: {
+    //     id: true,
+    //     teamId: true,
+    //     email: true,
+    //     role: true,
+    //     createdAt: true,
+    //   },
+    // }),
+    // prisma.teamMemberInvite.count({
+    //   where: whereClause,
+    // }),
+    prisma.invitation.findMany({
+      where: {
+        teamId: userTeam.id,
+      },
       skip: Math.max(page - 1, 0) * perPage,
       take: perPage,
       orderBy: {
         [orderByColumn]: orderByDirection,
       },
-      // Exclude token attribute.
       select: {
         id: true,
         teamId: true,
         email: true,
-        role: true,
+        status: true,
+        teamRole: true,
         createdAt: true,
+        token: true,
       },
     }),
-    prisma.teamMemberInvite.count({
-      where: whereClause,
+
+    prisma.invitation.count({
+      where: {
+        teamId: userTeam.id,
+      },
     }),
   ]);
 
