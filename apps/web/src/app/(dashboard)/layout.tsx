@@ -10,6 +10,7 @@ import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-
 import { getTeams } from '@documenso/lib/server-only/team/get-teams';
 
 import { Banner } from '~/components/(dashboard)/layout/banner';
+import { GlobalHeader } from '~/components/(dashboard)/layout/global-header';
 import { Header } from '~/components/(dashboard)/layout/header';
 import { VerifyEmailBanner } from '~/components/(dashboard)/layout/verify-email-banner';
 import { RefreshOnFocus } from '~/components/(dashboard)/refresh-on-focus/refresh-on-focus';
@@ -39,6 +40,7 @@ export default async function AuthenticatedDashboardLayout({
         {!user.emailVerified && <VerifyEmailBanner email={user.email} />}
 
         <Banner />
+        <GlobalHeader user={user} teams={teams} />
 
         <Header user={user} teams={teams} />
 
