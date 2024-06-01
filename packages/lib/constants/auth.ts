@@ -5,6 +5,7 @@ export const SALT_ROUNDS = 12;
 export const IDENTITY_PROVIDER_NAME: { [key in IdentityProvider]: string } = {
   [IdentityProvider.DOCUMENSO]: 'Documenso',
   [IdentityProvider.GOOGLE]: 'Google',
+  [IdentityProvider.KEYCLOAK]: 'Keycloak',
 };
 
 export const IS_GOOGLE_SSO_ENABLED = Boolean(

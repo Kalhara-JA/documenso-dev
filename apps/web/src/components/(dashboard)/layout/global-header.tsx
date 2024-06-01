@@ -14,6 +14,7 @@ import { TEAM_MEMBER_ROLE_MAP, TEAM_URL_REGEX } from '@documenso/lib/constants/t
 import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
 import { extractInitials } from '@documenso/lib/utils/recipient-formatter';
 import { canExecuteTeamAction } from '@documenso/lib/utils/teams';
+import { $Enums, Team, TeamMemberRole, User } from '@documenso/prisma/client';
 import { trpc } from '@documenso/trpc/react';
 import { cn } from '@documenso/ui/lib/utils';
 import { AvatarWithText } from '@documenso/ui/primitives/avatar';
@@ -27,9 +28,30 @@ import {
   DropdownMenuTrigger,
 } from '@documenso/ui/primitives/dropdown-menu';
 
-export const GlobalHeader = ({ user, teams: initialTeamsData }: any) => {
+type InitialTeamsData = {
+  currentTeamMember: {
+    role: $Enums.TeamMemberRole;
+  };
+  id: number;
+  name: string;
+  url: string;
+  createdAt: Date;
+  customerId: string | null;
+  ownerUserId: number;
+}[];
+
+interface GlobalHeaderProps {
+  user: User;
+  teams: InitialTeamsData;
+}
+
+export const GlobalHeader = ({ user, teams: initialTeamsData }: GlobalHeaderProps) => {
   const pathname = usePathname();
   const isUserAdmin = isAdmin(user);
+
+  // const { data: teamsQueryResult } = trpc.team.getTeams.useQuery(undefined, {
+  //   initialData: initialTeamsData,
+  // });
 
   const { data: teamsQueryResult } = trpc.team.getTeams.useQuery(undefined, {
     initialData: initialTeamsData,
@@ -37,7 +59,7 @@ export const GlobalHeader = ({ user, teams: initialTeamsData }: any) => {
 
   const teams = teamsQueryResult && teamsQueryResult.length > 0 ? teamsQueryResult : null;
 
-  const isPathTeamUrl = (teamUrl?: any) => {
+  const isPathTeamUrl = (teamUrl?: string) => {
     if (!pathname || !pathname.startsWith(`/t/`)) {
       return false;
     }
