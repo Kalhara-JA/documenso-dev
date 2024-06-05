@@ -40,8 +40,8 @@ background-color: #f8e43f;
 
 
 /* Navbar  */
-nav {
-/* min-height: 130px; */
+.main-nav {
+min-height: 130px;
 position: relative;
 }
 .navigation__checkbox {

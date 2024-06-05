@@ -119,7 +119,7 @@ export const GlobalHeader = ({ user, teams: initialTeamsData }: GlobalHeaderProp
             alt="Logo"
           />
         </div>
-        <nav>
+        <div>
           <ul className="flex space-x-6">
             {menuNavigationLinks.map(({ href, text }) => (
               <li key={href}>
@@ -129,9 +129,9 @@ export const GlobalHeader = ({ user, teams: initialTeamsData }: GlobalHeaderProp
               </li>
             ))}
           </ul>
-        </nav>
+        </div>
         <div>
-          <DropdownMenu>
+          <DropdownMenu >
             <DropdownMenuTrigger asChild>
               <Button
                 data-testid="menu-switcher"
@@ -151,7 +151,7 @@ export const GlobalHeader = ({ user, teams: initialTeamsData }: GlobalHeaderProp
             </DropdownMenuTrigger>
             <DropdownMenuContent
               className={cn(
-                'z-[60] ml-6 w-full md:ml-0',
+                'z-[60] ml-6 w-full md:ml-0 max-h-[70vh] overflow-auto',
                 teams ? 'min-w-[20rem]' : 'min-w-[12rem]',
               )}
               align="end"
@@ -243,7 +243,7 @@ export const GlobalHeader = ({ user, teams: initialTeamsData }: GlobalHeaderProp
                 </>
               )}
               <DropdownMenuSeparator />
-              <div className="md:none block">
+              <div className="md:hidden block">
                 {menuNavigationLinks.map(({ href, text }) => (
                   <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild key={href}>
                     <Link href={href}>{text}</Link>

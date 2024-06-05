@@ -30,7 +30,7 @@ export const Navigation: React.FC<NavigationProps> = ({
   setIsLangBtnHovered,
 }) => {
   return (
-    <nav className="dark mx-auto flex w-full items-center justify-between pr-[10px]">
+    <nav className="dark mx-auto flex w-full items-center justify-between pr-[10px] main-nav">
       <div className="relative font-extrabold text-black">
         <Image
           loader={({ src }) => src}

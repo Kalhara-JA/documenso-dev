@@ -16,7 +16,7 @@ import { useToast } from '@documenso/ui/primitives/use-toast';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters long'),
+  password: z.string().min(4, 'Password must be at least 8 characters long'),
 });
 
 type LoginFormInputs = z.infer<typeof loginSchema>;

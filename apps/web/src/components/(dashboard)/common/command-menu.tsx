@@ -170,6 +170,8 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
         parentClass: 'command-dialog-w',
       }}
       open={open}
+
+    
       onOpenChange={setOpen}
     >
       <CommandInput
