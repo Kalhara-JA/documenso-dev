@@ -27,6 +27,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@documenso/ui/primitives/dropdown-menu';
+import useLinks from '~/hooks/useLinks';
 
 type InitialTeamsData = {
   currentTeamMember: {
@@ -100,12 +101,7 @@ export const GlobalHeader = ({ user, teams: initialTeamsData }: GlobalHeaderProp
     return baseUrl;
   };
 
-  const menuNavigationLinks = [
-    { href: `/documents`, text: 'Home' },
-    { href: `/templates`, text: 'About' },
-    { href: '/settings/teams', text: 'Service' },
-    { href: '/settings/profile', text: 'Contact Us' },
-  ];
+  const { menuNavigationLinks } = useLinks();
 
   return (
     <header className="mx-auto  hidden w-full max-w-screen-xl items-center justify-between gap-x-4 border-b border-gray-200 px-4 py-3 md:flex md:justify-normal md:px-8">

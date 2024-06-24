@@ -10,6 +10,7 @@ import LogoImage from '@documenso/assets/logo.png';
 import { getRootHref } from '@documenso/lib/utils/params';
 import { Sheet, SheetContent } from '@documenso/ui/primitives/sheet';
 import { ThemeSwitcher } from '@documenso/ui/primitives/theme-switcher';
+import useLinks from '~/hooks/useLinks';
 
 export type MobileNavigationProps = {
   isMenuOpen: boolean;
@@ -25,32 +26,9 @@ export const MobileNavigation = ({ isMenuOpen, onMenuOpenChange }: MobileNavigat
 
   const rootHref = getRootHref(params, { returnEmptyRootString: true });
 
-  const globalRoutes = [
-    {
-      href: `${rootHref}/documents`,
-      text: 'Home',
-    },
-    {
-      href: `${rootHref}/templates`,
-      text: 'About',
-    },
-    {
-      href: '/settings/teams',
-      text: 'Service',
-    },
-    {
-      href: '/settings/profile',
-      text: 'Contact Us',
-    },
-    {
-      href: '/settings/teams',
-      text: 'User Settings',
-    },
-    {
-      href: '/settings/profile',
-      text: 'Admin Panel',
-    },
-  ];
+
+
+  const { menuNavigationLinks: globalRoutes } = useLinks();
 
   return (
     <Sheet open={isMenuOpen} onOpenChange={onMenuOpenChange}>
