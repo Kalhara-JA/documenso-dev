@@ -1,3 +1,4 @@
+
 html {
   min-width: 100vw;
   overflow-x: hidden;
@@ -39,7 +40,9 @@ background-color: #f8e43f;
 
 
 /* Navbar  */
-nav {
+
+.main-nav {
+
 min-height: 130px;
 position: relative;
 }

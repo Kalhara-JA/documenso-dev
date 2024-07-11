@@ -167,13 +167,17 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
     <CommandDialog
       commandProps={{
         onKeyDown: handleKeyDown,
+        parentClass: 'command-dialog-w',
       }}
       open={open}
+
+    
       onOpenChange={setOpen}
     >
       <CommandInput
         value={search}
         onValueChange={setSearch}
+        className="command-input-w"
         placeholder="Type a command or search..."
       />
 

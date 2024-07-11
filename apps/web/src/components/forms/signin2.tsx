@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from 'react';
@@ -71,6 +72,7 @@ export const LoginForm = () => {
       if (!result?.url) {
         throw new Error('An unknown error occurred');
       }
+
       
       router.push(result.url);
       
@@ -78,6 +80,7 @@ export const LoginForm = () => {
       toast({
         title: 'An unknown error occurred',
         description: 'We encountered an unknown error while attempting to sign you in. Please try again later.',
+
       });
       setError('An unknown error occurred. Please try again later.');
     }
@@ -86,13 +89,16 @@ export const LoginForm = () => {
   return (
     <form className="space-y-4 md:space-y-6" onSubmit={handleSubmit(onFormSubmit)}>
       <div>
+
         <label htmlFor="email" className="block mb-2 text-sm font-light text-gray-900">
+
           Your email
         </label>
         <input
           {...register('email')}
           type="email"
           id="email"
+
           className="bg-gray-50 border border-gray-300 sm:text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5 text-black placeholder:text-gray-500"
           style={{ background: '#F9FAFB' }}
           placeholder="name@company.com"
@@ -104,6 +110,7 @@ export const LoginForm = () => {
 
       <div>
         <label htmlFor="password" className="block mb-2 text-sm font-light text-gray-900">
+
           Password
         </label>
         <input
@@ -111,6 +118,7 @@ export const LoginForm = () => {
           type="password"
           id="password"
           placeholder="Enter your password"
+
           className="bg-gray-50 border border-gray-300 sm:text-sm rounded-lg focus:ring-black focus:border-black block w-full p-2.5 text-black placeholder:text-gray-500"
           style={{ background: '#F9FAFB' }}
         />
@@ -123,15 +131,19 @@ export const LoginForm = () => {
         <p className="mt-2 text-sm text-red-600">{error}</p>
       )}
 
+
       <div className="flex items-center justify-between">
         <div></div>
 
+
         <Link href="/forgot-password2" tabIndex={-1} className="text-gray-700 hover:underline text-sm font-medium">
+
           Forgot password?
         </Link>
       </div>
 
       <button type="submit" className="btn-primary bg-[#2ae8d3] w-full ">
+
         Sign in
       </button>
     </form>

@@ -97,7 +97,7 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
       text: 'Templates',
     },
   ];
-  
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -119,7 +119,7 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className={cn('z-[60] ml-6 w-full md:ml-0', teams ? 'min-w-[20rem]' : 'min-w-[12rem]')}
+        className={cn('z-[60] ml-6 w-full md:ml-0 max-h-[70vh] overflow-auto', teams ? 'min-w-[20rem]' : 'min-w-[12rem]')}
         align="end"
         forceMount
       >
@@ -162,19 +162,20 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
                     </Button>
                   </DropdownMenuItem>
 
-                  {isUserAdmin && < DropdownMenuItem asChild>
-                    <Button
-                      title="Create team"
-                      variant="ghost"
-                      className="text-muted-foreground flex h-5 w-5 items-center justify-center p-0"
-                      asChild
-                    >
-                      <Link href="/settings/teams?action=add-team">
-                        <Plus className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </DropdownMenuItem>
-                  }
+                  {isUserAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Button
+                        title="Create team"
+                        variant="ghost"
+                        className="text-muted-foreground flex h-5 w-5 items-center justify-center p-0"
+                        asChild
+                      >
+                        <Link href="/settings/teams?action=add-team">
+                          <Plus className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    </DropdownMenuItem>
+                  )}
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -198,11 +199,11 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
               ))}
             </div>
           </>
-        ) :
+        ) : (
           <>
-            {
-              isUserAdmin && <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
-                < Link
+            {isUserAdmin && (
+              <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
+                <Link
                   href="/settings/teams?action=add-team"
                   className="flex items-center justify-between"
                 >
@@ -210,46 +211,42 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
                   <Plus className="ml-2 h-4 w-4" />
                 </Link>
               </DropdownMenuItem>
-            }
+            )}
           </>
-        }
+        )}
 
         <DropdownMenuSeparator />
 
-        <div className='block md:hidden'>
-  {
-    menuNavigationLinks.map(({ href, text }) => {
-      return (
 
-        <DropdownMenuItem key={href} className="text-muted-foreground px-4 py-2" asChild>
-        <Link href={href}>{text}</Link>
-      </DropdownMenuItem>
-      )
-    })
-  }
-  </div>
+        <div className="block md:hidden">
+          {menuNavigationLinks.map(({ href, text }) => {
+            return (
+              <DropdownMenuItem className="text-muted-foreground px-4 py-2" key={text} asChild>
+                <Link href={href}>{text}</Link>
+              </DropdownMenuItem>
+            );
+          })}
+        </div>
 
-      <div className="hidden md:block">
-        {
-          isUserAdmin && (
+        <div className="hidden md:block">
+          {isUserAdmin && (
+
             <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
               <Link href="/admin">Admin panel</Link>
             </DropdownMenuItem>
-          )
-        }
+          )}
 
-        <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
-          <Link href="/settings/profile">User settings</Link>
-        </DropdownMenuItem>
+          <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
+            <Link href="/settings/profile">User settings</Link>
+          </DropdownMenuItem>
 
-        {
-          selectedTeam &&
-          canExecuteTeamAction('MANAGE_TEAM', selectedTeam.currentTeamMember.role) && (
-            <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
-              <Link href={`/t/${selectedTeam.url}/settings/`}>Team settings</Link>
-            </DropdownMenuItem>
-          )
-        }
+
+          {selectedTeam &&
+            canExecuteTeamAction('MANAGE_TEAM', selectedTeam.currentTeamMember.role) && (
+              <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
+                <Link href={`/t/${selectedTeam.url}/settings/`}>Team settings</Link>
+              </DropdownMenuItem>
+            )}
         </div>
 
 
@@ -263,7 +260,7 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
         >
           Sign Out
         </DropdownMenuItem>
-      </DropdownMenuContent >
-    </DropdownMenu >
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };

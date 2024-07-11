@@ -1,3 +1,4 @@
+
 export const languages : {text :string ,code : string , label : string}[]= [
     { code: 'en', label: 'English' , text : 'english'},
     { code: 'pt', label: 'Português', text : 'portuguese' },
@@ -10,3 +11,4 @@ export const languages : {text :string ,code : string , label : string}[]= [
 
   export const locales =languages.map((lang)=>lang.code);
  
+

@@ -65,7 +65,62 @@
   background-color : #F3F4F6;
 }
 
-.cera-pro-font * {
+ * {
   font-family: "CeraPro", sans-serif !important;
 }
 
+
+:root {
+  --main-color : #2AE8D3;
+}
+
+.command-dialog-w {
+  @apply max-w-xl bg-gray-50;
+}
+.command-dialog-w > div {
+  @apply  bg-gray-50;
+
+}
+
+.command-dialog-w .command-icon {
+  height : 15px !important;
+  opacity: 0.8;
+  @apply text-gray-400 ;
+
+  
+}
+.command-dialog-w  .command-input {
+  border : 1px solid black ;
+  margin-right: 20px;
+margin-block: 10px ;
+padding-inline : 8px; 
+font-size : 15px !important;
+}
+.command-dialog-w  .command-input:focus {
+border-color : var(--main-color);
+border-width : 2px;
+transition : all 300ms ease ;
+}
+.command-dialog-w .command-group{
+  padding : 0px;
+  margin : 0px;
+}
+.command-dialog-w .command-group > div[cmdk-group-heading] {
+  font-size : 13px ;
+  font-weight: bold;
+  color : var(--main-color);
+  opacity : 1 !important;
+  margin-left: 17px;
+}
+
+.command-dialog-w .command-list {
+  transition: all 100ms ease;
+  padding-inline: 17px !important ;
+  margin : 0px;
+  border-radius: 0px !important;
+}
+.command-dialog-w .command-list:hover {
+  background: var(--main-color);
+  color : white;
+
+}

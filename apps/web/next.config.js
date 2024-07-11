@@ -20,6 +20,9 @@ const FONT_CAVEAT_BYTES = fs.readFileSync(
 
 /** @type {import('next').NextConfig} */
 const config = {
+  images: {
+    domains: ['res.cloudinary.com'],
+  },
   output: process.env.DOCKER_OUTPUT ? 'standalone' : undefined,
   images : {
     domains : ['res.cloudinary.com']
@@ -80,6 +83,7 @@ const config = {
           },
         ],
       },
+
       {
         permanent: true,
         source: '/documents/:id/signed',

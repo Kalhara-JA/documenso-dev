@@ -10,7 +10,9 @@ type UnauthenticatedLayoutProps = {
 
 export default function UnauthenticatedLayout({ children }: UnauthenticatedLayoutProps) {
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4">
+
+    <main className="relative flex flex-col items-center justify-center overflow-hidden ">
+
       <div>
         <div className="absolute -inset-[min(600px,max(400px,60vw))] -z-[1] flex items-center justify-center opacity-70">
           <Image

@@ -1,3 +1,4 @@
+
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
@@ -14,3 +15,4 @@ git add "$MONOREPO_ROOT/apps/web/public/"
 git add "$MONOREPO_ROOT/apps/marketing/public/"
 
 # npx lint-staged
+

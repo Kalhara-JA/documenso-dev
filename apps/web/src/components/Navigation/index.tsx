@@ -1,9 +1,14 @@
-import classNames from "classnames";
-import Image from "next/image";
-import './navigation.css';  
-import Link from "next/link";
-import { IMAGE_URL } from "~/utils/image_url";
-import { routes } from "~/utils/routes";
+
+import Image from 'next/image';
+import Link from 'next/link';
+
+import classNames from 'classnames';
+
+import { IMAGE_URL } from '~/utils/image_url';
+import { routes } from '~/utils/routes';
+
+import './navigation.css';
+
 
 interface NavigationProps {
   navOpen: boolean;
@@ -27,7 +32,9 @@ export const Navigation: React.FC<NavigationProps> = ({
   setIsLangBtnHovered,
 }) => {
   return (
-    <nav className="flex w-full justify-between items-center mx-auto pr-[10px] dark">
+
+    <nav className="dark mx-auto flex w-full items-center justify-between pr-[10px] main-nav">
+
       <div className="relative font-extrabold text-black">
         <Image
           loader={({ src }) => src}
@@ -35,32 +42,38 @@ export const Navigation: React.FC<NavigationProps> = ({
           height={70}
           width={120}
           objectFit="contain"
-          className="h-[110px] w-[120px] 2xl:h-[100px] 2xl:w-[150px] object-contain"
+
+          className="h-[110px] w-[120px] object-contain 2xl:h-[100px] 2xl:w-[150px]"
           src={`${IMAGE_URL}/assets/day/logo.webp`}
         />
         <div
-          className="z-20 absolute h-full w-full rounded-full top-0 cursor-pointer"
+          className="absolute top-0 z-20 h-full w-full cursor-pointer rounded-full"
+
           onClick={() => {}}
         ></div>
       </div>
 
-      <div className="flex items-center gap-[25px] mr-[10px]">
-        <div
-          className={classNames("relative", "dark", "hamburger-container", { navOpen })}
-        >
+
+      <div className="mr-[10px] flex items-center gap-[25px]">
+        <div className={classNames('relative', 'dark', 'hamburger-container', { navOpen })}>
           <div
-            className="z-20 absolute h-full w-full rounded-full duration-[800ms] extra-nav"
+            className="extra-nav absolute z-20 h-full w-full rounded-full duration-[800ms]"
+
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onClick={() => setNavOpen(!navOpen)}
           ></div>
-          <button className={classNames("menu__icon", { "hovered-class": isHovered || navOpen })}>
+
+          <button className={classNames('menu__icon', { 'hovered-class': isHovered || navOpen })}>
+
             <span></span>
             <span></span>
           </button>
         </div>
 
-        <div className={classNames("navigation", "dark")}>
+
+        <div className={classNames('navigation', 'dark')}>
+
           <input
             type="checkbox"
             className="navigation__checkbox"
@@ -69,23 +82,27 @@ export const Navigation: React.FC<NavigationProps> = ({
             readOnly
           />
 
-          <div className={classNames("navigation__background", { navOpen })}>
-            &nbsp;
-          </div>
+
+          <div className={classNames('navigation__background', { navOpen })}>&nbsp;</div>
 
           <nav className="navigation__nav">
-            <div className="custom-container flex justify-between min-h-[130px] items-center">
+            <div className="custom-container flex min-h-[130px] items-center justify-between">
               <div></div>
-              <div
-                className={classNames("relative", "dark", "hamburger-container", { navOpen })}
-              >
+              <div className={classNames('relative', 'dark', 'hamburger-container', { navOpen })}>
                 <div
-                  className="z-20 absolute w-20 h-20 rounded-full duration-[800ms] extra-nav"
+                  className="extra-nav absolute z-20 h-20 w-20 rounded-full duration-[800ms]"
+
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                   onClick={() => setNavOpen(!navOpen)}
                 ></div>
-                <button className={classNames("mr-8 menu__icon", { "hovered-class": isHovered || navOpen })}>
+
+                <button
+                  className={classNames('menu__icon mr-8', {
+                    'hovered-class': isHovered || navOpen,
+                  })}
+                >
+
                   <span></span>
                   <span></span>
                 </button>
