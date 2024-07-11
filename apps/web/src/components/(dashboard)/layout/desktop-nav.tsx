@@ -43,7 +43,9 @@ export const DesktopNav = ({ className, setIsCommandMenuOpen, ...props }: Deskto
   return (
     <div
       className={cn(
+
         'ml-2 hidden flex-1 items-center gap-x-12 md:flex md:justify-between',
+
         className,
       )}
       {...props}

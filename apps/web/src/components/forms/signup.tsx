@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { FcGoogle } from 'react-icons/fc';
+// import { SiKeycloak } from 'react-icons/si'; // Import Keycloak icon
 import { z } from 'zod';
 
 import { useAnalytics } from '@documenso/lib/client-only/hooks/use-analytics';
@@ -52,9 +53,10 @@ export type SignUpFormProps = {
   className?: string;
   initialEmail?: string;
   isGoogleSSOEnabled?: boolean;
+  isKeycloakSSOEnabled?: boolean; // Add a prop to enable Keycloak SSO
 };
 
-export const SignUpForm = ({ className, initialEmail, isGoogleSSOEnabled }: SignUpFormProps) => {
+export const SignUpForm = ({ className, initialEmail, isGoogleSSOEnabled, isKeycloakSSOEnabled }: SignUpFormProps) => {
   const { toast } = useToast();
   const analytics = useAnalytics();
   const router = useRouter();
@@ -115,7 +117,20 @@ export const SignUpForm = ({ className, initialEmail, isGoogleSSOEnabled }: Sign
       toast({
         title: 'An unknown error occurred',
         description:
-          'We encountered an unknown error while attempting to sign you Up. Please try again later.',
+          'We encountered an unknown error while attempting to sign you up. Please try again later.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const onSignUpWithKeycloakClick = async () => { // Implement Keycloak sign-in logic
+    try {
+      await signIn('keycloak', { callbackUrl: SIGN_UP_REDIRECT_PATH });
+    } catch (err) {
+      toast({
+        title: 'An unknown error occurred',
+        description:
+          'We encountered an unknown error while attempting to sign you up. Please try again later.',
         variant: 'destructive',
       });
     }
@@ -218,6 +233,28 @@ export const SignUpForm = ({ className, initialEmail, isGoogleSSOEnabled }: Sign
             >
               <FcGoogle className="mr-2 h-5 w-5" />
               Sign Up with Google
+            </Button>
+          </>
+        )}
+
+        {isKeycloakSSOEnabled && ( // Add Keycloak SSO button
+          <>
+            <div className="relative flex items-center justify-center gap-x-4 py-2 text-xs uppercase">
+              <div className="bg-border h-px flex-1" />
+              <span className="text-muted-foreground bg-transparent">Or</span>
+              <div className="bg-border h-px flex-1" />
+            </div>
+
+            <Button
+              type="button"
+              size="lg"
+              variant={'outline'}
+              className="bg-background text-muted-foreground border"
+              disabled={isSubmitting}
+              onClick={onSignUpWithKeycloakClick}
+            >
+              {/* <SiKeycloak className="mr-2 h-5 w-5" /> */}
+              Sign Up with Keycloak
             </Button>
           </>
         )}

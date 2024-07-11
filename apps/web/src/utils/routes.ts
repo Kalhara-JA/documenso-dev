@@ -1,3 +1,4 @@
+
 interface LanguageRoutes {
   home: string
   'about-us': string
@@ -136,3 +137,4 @@ export const routes: Routes = {
 }
 
 export type LocalActiveType = keyof Routes
+

@@ -217,6 +217,7 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
 
         <DropdownMenuSeparator />
 
+
         <div className="block md:hidden">
           {menuNavigationLinks.map(({ href, text }) => {
             return (
@@ -229,6 +230,7 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
 
         <div className="hidden md:block">
           {isUserAdmin && (
+
             <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
               <Link href="/admin">Admin panel</Link>
             </DropdownMenuItem>
@@ -238,6 +240,7 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
             <Link href="/settings/profile">User settings</Link>
           </DropdownMenuItem>
 
+
           {selectedTeam &&
             canExecuteTeamAction('MANAGE_TEAM', selectedTeam.currentTeamMember.role) && (
               <DropdownMenuItem className="text-muted-foreground px-4 py-2" asChild>
@@ -245,6 +248,7 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
               </DropdownMenuItem>
             )}
         </div>
+
 
         <DropdownMenuItem
           className="text-destructive/90 hover:!text-destructive px-4 py-2"

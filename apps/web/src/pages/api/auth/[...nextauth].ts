@@ -4,7 +4,9 @@ import NextAuth from 'next-auth';
 
 import { getStripeCustomerByUser } from '@documenso/ee/server-only/stripe/get-customer';
 import { IS_BILLING_ENABLED } from '@documenso/lib/constants/app';
+import { NEXT_AUTH_OPTIONS as NEXT_AUTH_OPTIONS_NEW } from '@documenso/lib/next-auth/auth-options-new';
 import { NEXT_AUTH_OPTIONS } from '@documenso/lib/next-auth/auth-options';
+
 import { extractNextApiRequestMetadata } from '@documenso/lib/universal/extract-request-metadata';
 import { prisma } from '@documenso/prisma';
 import { UserSecurityAuditLogType } from '@documenso/prisma/client';
@@ -12,12 +14,21 @@ import { UserSecurityAuditLogType } from '@documenso/prisma/client';
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
   const { ipAddress, userAgent } = extractNextApiRequestMetadata(req);
 
+  const body = await req.body
+  const { inapp } = body;
+
+  const options = inapp ? NEXT_AUTH_OPTIONS : NEXT_AUTH_OPTIONS_NEW;
+
+  const errorPage = inapp ? '/signin/inapp' : '/signin';
+  const signInPage = inapp ? '/signin/inapp' : '/signin';
+
+
   return await NextAuth(req, res, {
-    ...NEXT_AUTH_OPTIONS,
+    ...options,
     pages: {
-      signIn: '/signin',
+      signIn: signInPage,
       signOut: '/signout',
-      error: '/signin',
+      error: errorPage,
     },
     events: {
       signIn: async ({ user: { id: userId } }) => {
@@ -61,6 +72,8 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
         });
       },
       linkAccount: async ({ user }) => {
+
+
         const userId = typeof user.id === 'string' ? parseInt(user.id) : user.id;
 
         if (isNaN(userId)) {
@@ -77,5 +90,43 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
         });
       },
     },
+    adapter: {
+      ...NEXT_AUTH_OPTIONS.adapter,
+      linkAccount: async (account) => {
+        const existingAccount = await prisma.account.findFirst({
+          where: {
+            providerAccountId: account.providerAccountId,
+          },
+        });
+
+        if (existingAccount) {
+          return
+        }
+
+        const newAccount = {
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          providerId: account.providerId,
+          userId: Number(account.userId),
+          type: account.type,
+          refreshToken: account.refreshToken,
+          accessToken: account.accessToken,
+          accessTokenExpires: account.accessTokenExpires,
+          idToken: account.idToken,
+          idTokenExpires: account.idTokenExpires,
+          scope: account.scope,
+          tokenType: account.tokenType,
+          sessionState: account.sessionState,
+          oauthToken: account.oauthToken,
+          oauthTokenSecret: account.oauthTokenSecret,
+          oauthTokenExpires: account.oauthTokenExpires,
+        };
+
+        await prisma.account.create({
+          data: newAccount,
+        });
+
+      }
+    }
   });
 }

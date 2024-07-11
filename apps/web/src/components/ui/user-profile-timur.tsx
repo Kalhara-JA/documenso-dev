@@ -6,7 +6,6 @@ import { File } from 'lucide-react';
 
 import timurImage from '@documenso/assets/images/timur.png';
 import { NEXT_PUBLIC_WEBAPP_URL } from '@documenso/lib/constants/app';
-import { VerifiedIcon } from '@documenso/ui/icons/verified';
 import { cn } from '@documenso/ui/lib/utils';
 import { Button } from '@documenso/ui/primitives/button';
 
@@ -41,7 +40,7 @@ export const UserProfileTimur = ({ className, rows = 2 }: UserProfileTimurProps)
         <div className="flex items-center justify-center gap-x-2">
           <h2 className="text-2xl font-semibold">Timur Ercan</h2>
 
-          <VerifiedIcon className="text-primary h-8 w-8" />
+          {/* <VerifiedIcon className="text-primary h-8 w-8" /> */}
         </div>
 
         <p className="text-muted-foreground mt-4 max-w-[40ch] text-center text-sm">Hey I’m Timur</p>

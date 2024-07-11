@@ -24,6 +24,9 @@ const config = {
     domains: ['res.cloudinary.com'],
   },
   output: process.env.DOCKER_OUTPUT ? 'standalone' : undefined,
+  images : {
+    domains : ['res.cloudinary.com']
+  },
   experimental: {
     outputFileTracingRoot: path.join(__dirname, '../../'),
     serverComponentsExternalPackages: ['@node-rs/bcrypt', '@documenso/pdf-sign', 'playwright'],

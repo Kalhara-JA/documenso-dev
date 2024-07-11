@@ -12,7 +12,7 @@ import { cn } from '@documenso/ui/lib/utils';
 import { Button } from '@documenso/ui/primitives/button';
 import { useSession } from 'next-auth/react';
 import { isAdmin } from '@documenso/lib/next-auth/guards/is-admin';
-import { User as UserType } from '@documenso/prisma/client';
+import type { User as UserType } from '@documenso/prisma/client';
 
 
 export type DesktopNavProps = HTMLAttributes<HTMLDivElement>;
