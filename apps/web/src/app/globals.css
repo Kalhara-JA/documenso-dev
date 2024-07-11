@@ -61,8 +61,8 @@
   
 }
 
-:is(html , body):has(.cera-pro-font){
-  background-color : #F3F4F6;
+html , body{
+  background-color : #fff;
 }
 
  * {
