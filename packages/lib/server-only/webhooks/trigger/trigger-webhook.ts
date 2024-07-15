@@ -7,15 +7,17 @@ import { getAllWebhooksByEventTrigger } from '../get-all-webhooks-by-event-trigg
 export type TriggerWebhookOptions = {
   event: WebhookTriggerEvents;
   data: Record<string, unknown>;
+  recipient?: any;
   userId: number;
   teamId?: number;
 };
 
-export const triggerWebhook = async ({ event, data, userId, teamId }: TriggerWebhookOptions) => {
+export const triggerWebhook = async ({ event, data, userId, teamId, recipient }: TriggerWebhookOptions) => {
   try {
     const body = {
       event,
       data,
+      recipient,
       userId,
       teamId,
     };

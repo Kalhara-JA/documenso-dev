@@ -60,6 +60,9 @@ export const createDocument = async ({
         teamId,
         formValues,
       },
+      include: {
+        Recipient: true,
+      }
     });
 
     await tx.documentAuditLog.create({
