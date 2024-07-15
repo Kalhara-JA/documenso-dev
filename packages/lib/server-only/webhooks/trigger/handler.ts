@@ -44,6 +44,7 @@ export const handlerTriggerWebhooks = async (
   console.log('data_webhook', data);
 
   const allWebhooks = await getAllWebhooksByEventTrigger({ event, userId, teamId });
+  console.log('allWebhooks', allWebhooks);
 
   await Promise.allSettled(
     allWebhooks.map(async (webhook) =>

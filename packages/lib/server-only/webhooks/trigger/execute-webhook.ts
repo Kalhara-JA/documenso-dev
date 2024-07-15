@@ -14,6 +14,7 @@ export type ExecuteWebhookOptions = {
 
 export const executeWebhook = async ({ event, webhook, data }: ExecuteWebhookOptions) => {
   const { webhookUrl: url, secret } = webhook;
+  console.log('Executing webhook', { event, url });
 
   console.log('Executing webhook', { event, url });
 
