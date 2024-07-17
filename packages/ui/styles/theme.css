@@ -26,8 +26,8 @@
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-
-    --primary: 95.08 71.08% 67.45%;
+--primary2: 54 93% 59%;
+    --primary: 173, 81%, 54%;
     --primary-foreground: 95.08 71.08% 10%;
 
     --secondary: 210 40% 96.1%;
@@ -39,7 +39,7 @@
     --destructive: 0 100% 50%;
     --destructive-foreground: 210 40% 98%;
 
-    --ring: 95.08 71.08% 67.45%;
+    --ring:  173, 81%, 54%;
 
     --radius: 0.5rem;
 
@@ -65,6 +65,7 @@
 
     --border: 0 0% 27.9%;
     --input: 0 0% 27.9%;
+--primary2: 54 93% 59%;
 
     --primary: 95.08 71.08% 67.45%;
     --primary-foreground: 95.08 71.08% 10%;
@@ -148,3 +149,8 @@
 .swagger-dark-theme .swagger-ui .microlight {
   filter: invert(100%) hue-rotate(180deg);
 }
+
+.font-semibold {
+  color :#2AE8D3;
+}
+

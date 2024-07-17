@@ -104,7 +104,7 @@ export const DocumentPageView = async ({ params, team }: DocumentPageViewProps) 
 
   return (
     <div className="mx-auto -mt-4 w-full max-w-screen-xl px-4 md:px-8">
-      <Link href={documentRootPath} className="flex items-center text-[#7AC455] hover:opacity-80">
+      <Link href={documentRootPath} className="flex items-center text-[#2AE8D3] hover:opacity-80">
         <ChevronLeft className="mr-2 inline-block h-5 w-5" />
         Documents
       </Link>
@@ -195,9 +195,8 @@ export const DocumentPageView = async ({ params, team }: DocumentPageViewProps) 
                       (recipient) => recipient.signingStatus === 'NOT_SIGNED',
                     );
 
-                    return `Waiting on ${pendingRecipients.length} recipient${
-                      pendingRecipients.length > 1 ? 's' : ''
-                    }`;
+                    return `Waiting on ${pendingRecipients.length} recipient${pendingRecipients.length > 1 ? 's' : ''
+                      }`;
                   })
                   .exhaustive()}
               </p>

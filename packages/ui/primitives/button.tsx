@@ -12,7 +12,7 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
+        default: 'bg-primary text-[#05403A] hover:bg-primary2 hover:text-[#453F0A] ',
         destructive:
           'bg-destructive text-destructive-foreground hover:bg-destructive/90 focus-visible:ring-destructive',
         outline: 'border border-input hover:bg-accent hover:text-accent-foreground',
@@ -49,7 +49,7 @@ const loaderVariants = cva('mr-2 animate-spin', {
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean;
 
   /**

@@ -119,7 +119,7 @@ export const GlobalHeader = ({ user, teams: initialTeamsData }: GlobalHeaderProp
           <ul className="flex space-x-6">
             {menuNavigationLinks.map(({ href, text }) => (
               <li key={href}>
-                <Link href={href} className="text-sm text-gray-600 hover:text-gray-900">
+                <Link href={href} className=" text-gray-600 hover:text-gray-900">
                   {text}
                 </Link>
               </li>
@@ -164,7 +164,7 @@ export const GlobalHeader = ({ user, teams: initialTeamsData }: GlobalHeaderProp
                         secondaryText={formatSecondaryAvatarText()}
                         rightSideComponent={
                           !pathname?.startsWith(`/t/`) && (
-                            <CheckCircle2 className="ml-auto fill-black text-white dark:fill-white dark:text-black" />
+                            <CheckCircle2 className="ml-auto fill-[#2AE8D3] text-white dark:fill-white dark:text-black" />
                           )
                         }
                       />
@@ -214,7 +214,7 @@ export const GlobalHeader = ({ user, teams: initialTeamsData }: GlobalHeaderProp
                             secondaryText={formatSecondaryAvatarText(team)}
                             rightSideComponent={
                               isPathTeamUrl(team.url) && (
-                                <CheckCircle2 className="ml-auto fill-black text-white dark:fill-white dark:text-black" />
+                                <CheckCircle2 className="ml-auto fill-[#2AE8D3] text-white dark:fill-white dark:text-black" />
                               )
                             }
                           />

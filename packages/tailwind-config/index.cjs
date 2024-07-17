@@ -27,6 +27,7 @@ module.exports = {
           DEFAULT: 'hsl(var(--primary))',
           foreground: 'hsl(var(--primary-foreground))',
         },
+        primary2:  'hsl(var(--primary2))',
         secondary: {
           DEFAULT: 'hsl(var(--secondary))',
           foreground: 'hsl(var(--secondary-foreground))',
@@ -64,7 +65,7 @@ module.exports = {
           // foreground: 'hsl(var(--widget-foreground))',
         },
         documenso: {
-          DEFAULT: '#A2E771',
+          DEFAULT: '#2AE8D3',
           50: '#FFFFFF',
           100: '#FDFFFD',
           200: '#E7F9DA',
@@ -78,7 +79,7 @@ module.exports = {
           950: '#284E0D',
         },
         dawn: {
-          DEFAULT: '#aaa89f',
+          DEFAULT: '#2AE8D3',
           50: '#f8f8f8',
           100: '#f1f1ef',
           200: '#e6e5e2',
@@ -92,7 +93,7 @@ module.exports = {
           950: '#2a2925',
         },
         water: {
-          DEFAULT: '#d7e4f3',
+          DEFAULT: '#2AE8D3',
           50: '#f3f6fb',
           100: '#e3ebf6',
           200: '#d7e4f3',

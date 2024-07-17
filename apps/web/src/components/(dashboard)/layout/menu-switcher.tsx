@@ -135,7 +135,7 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
                   secondaryText={formatSecondaryAvatarText()}
                   rightSideComponent={
                     !pathname?.startsWith(`/t/`) && (
-                      <CheckCircle2 className="ml-auto fill-black text-white dark:fill-white dark:text-black" />
+                      <CheckCircle2 className="ml-auto fill-[#2AE8D3] text-white dark:fill-white dark:text-black" />
                     )
                   }
                 />
@@ -190,7 +190,7 @@ export const MenuSwitcher = ({ user, teams: initialTeamsData }: MenuSwitcherProp
                       secondaryText={formatSecondaryAvatarText(team)}
                       rightSideComponent={
                         isPathTeamUrl(team.url) && (
-                          <CheckCircle2 className="ml-auto fill-black text-white dark:fill-white dark:text-black" />
+                          <CheckCircle2 className="ml-auto fill-[#2AE8D3] text-white dark:fill-white dark:text-black" />
                         )
                       }
                     />
