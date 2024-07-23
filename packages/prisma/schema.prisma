@@ -28,6 +28,7 @@ model User {
   password             String?
   source               String?
   signature            String?
+  cal                  Boolean              @default(false)
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @default(now()) @updatedAt
   lastSignedIn         DateTime             @default(now())
@@ -450,6 +451,7 @@ model Team {
   id                   Int                       @id @default(autoincrement())
   name                 String
   url                  String                    @unique
+  cal                  Boolean                   @default(false)
   createdAt            DateTime                  @default(now())
   customerId           String?                   @unique
   ownerUserId          Int

@@ -58,6 +58,7 @@ export const ZCreateTeamBillingPortalMutationSchema = z.object({
 export const ZCreateTeamMutationSchema = z.object({
   teamName: ZTeamNameSchema,
   teamUrl: ZTeamUrlSchema,
+  cal: z.boolean(),
   templateIds: z.array(z.number()),
 });
 
@@ -156,6 +157,7 @@ export const ZUpdateTeamMutationSchema = z.object({
   data: z.object({
     name: ZTeamNameSchema,
     url: ZTeamUrlSchema,
+    cal: z.boolean(),
   }),
 });
 

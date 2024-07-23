@@ -11,6 +11,7 @@ export type UpdateTeamOptions = {
   data: {
     name?: string;
     url?: string;
+    cal?: boolean;
   };
 };
 
@@ -42,6 +43,7 @@ export const updateTeam = async ({ userId, teamId, data }: UpdateTeamOptions) =>
         data: {
           url: data.url,
           name: data.name,
+          cal: data.cal,
         },
       });
 
