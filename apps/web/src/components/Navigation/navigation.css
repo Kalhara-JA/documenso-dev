@@ -73,8 +73,8 @@ html {
     width: 10px;
     border-radius: 50%;
     position: absolute;
-    top: 60px;
-    right:62px;
+    top: 50px;
+    right: 20px;
     background: white;
     transition: transform 0.8s cubic-bezier(0.86, 0, 0.07, 1);
     z-index: -1;
@@ -481,7 +481,6 @@ html {
     }
     .navigation__background {
       top: 60px;
-     
     }
   
     .menu__icon {
@@ -534,6 +533,8 @@ html {
 
   .hamburger-container {
     min-height: 42.5px;
+    display: grid;
+    place-items: center;
   }
 
   
