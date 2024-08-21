@@ -40,6 +40,7 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
         if (!credentials) {
           throw new Error(ErrorCode.CREDENTIALS_NOT_FOUND);
         }
+        console.log('credentials, req', credentials, req);
 
         const { email, password, firstName, lastName, confirmPassword, token, teamId, teamRole } = credentials;
         const requestMetadata = extractNextAuthRequestMetadata(req);
@@ -59,6 +60,8 @@ export const NEXT_AUTH_OPTIONS: AuthOptions = {
                 'Content-Type': 'application/x-www-form-urlencoded',
               },
             });
+
+            console.log('adminToken', adminToken);
 
             const adminTokenData = adminToken.data;
 

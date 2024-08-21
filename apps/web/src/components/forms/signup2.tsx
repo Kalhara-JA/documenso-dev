@@ -58,6 +58,7 @@ export default function SignupForm({ inviteData }: { inviteData: InviteData }) {
 
   const onSubmit: SubmitHandler<SignupFormData> = async data => {
     try {
+      console.log('data', data);
       const result = await signIn('credentials', {
         email: data.email,
         password: data.password,
@@ -71,6 +72,8 @@ export default function SignupForm({ inviteData }: { inviteData: InviteData }) {
         callbackUrl: '/documents',
         redirect: false,
       });
+
+      console.log('result', result);
 
       if (result?.error) {
         toast({

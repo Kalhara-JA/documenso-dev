@@ -7,6 +7,8 @@ import { MailChannelsTransport } from './transports/mailchannels';
 const getTransport = () => {
   const transport = process.env.NEXT_PRIVATE_SMTP_TRANSPORT ?? 'smtp-auth';
 
+  console.log('Using transport:', transport);
+
   if (transport === 'mailchannels') {
     return createTransport(
       MailChannelsTransport.makeTransport({

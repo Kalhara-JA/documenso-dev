@@ -47,7 +47,7 @@ export const LoginForm = () => {
       const result = await signIn('credentials', {
         email,
         password,
-        inapp: false,
+        inapp: true,
         callbackUrl: LOGIN_REDIRECT_PATH,
         redirect: false,
       });

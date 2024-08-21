@@ -13,6 +13,7 @@ export const ZRetrieveUserByIdQuerySchema = z.object({
 
 export const ZUpdateProfileMutationSchema = z.object({
   name: z.string().min(1),
+  email: z.string().email(),
   signature: z.string(),
 });
 

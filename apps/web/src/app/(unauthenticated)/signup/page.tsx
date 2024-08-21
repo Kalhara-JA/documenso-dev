@@ -30,7 +30,7 @@ export default function PageSignup() {
   const { mutateAsync: verifyInvitationLink } = trpc.team.verifyInvitationLink.useMutation();
 
   useEffect(() => {
-     // Ensure this is defined outside of useEffect
+    // Ensure this is defined outside of useEffect
   
     const fetchData = async () => {
       if (!codeRun) {
@@ -45,11 +45,13 @@ export default function PageSignup() {
   
           const urlParams = new URLSearchParams(window.location.search);
           const token = urlParams.get('token');
+          console.log('token:', token);
           if (!token) {
             setIsAuthorized(false);
           } else {
             try {
               const res = await verifyInvitationLink({ token });
+              console.log('res:', res)
               if (res.status === $Enums.TeamMemberInviteStatus.PENDING) {
                 setInviteData(res);
               } else {
@@ -67,7 +69,7 @@ export default function PageSignup() {
     void fetchData();
   }, []);
   
-
+  console.log('inviteData:', inviteData);
   if (!isAuthorized || !inviteData) {
     return (
       <section>

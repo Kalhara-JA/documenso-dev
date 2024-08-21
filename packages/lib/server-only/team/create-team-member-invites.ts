@@ -200,6 +200,7 @@ export const generateInvitationLink = async ({
 }
 
 export const verifyInvitationLink = async (token: string) => {
+  console.log('Verifying invitation link:', token);
   const invitation = await prisma.invitation.findFirst({
     where: {
       token,

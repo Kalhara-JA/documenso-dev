@@ -1,12 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-
 import NextAuth from 'next-auth';
-
 import { getStripeCustomerByUser } from '@documenso/ee/server-only/stripe/get-customer';
 import { IS_BILLING_ENABLED } from '@documenso/lib/constants/app';
 import { NEXT_AUTH_OPTIONS as NEXT_AUTH_OPTIONS_NEW } from '@documenso/lib/next-auth/auth-options-new';
 import { NEXT_AUTH_OPTIONS } from '@documenso/lib/next-auth/auth-options';
-
 import { extractNextApiRequestMetadata } from '@documenso/lib/universal/extract-request-metadata';
 import { prisma } from '@documenso/prisma';
 import { UserSecurityAuditLogType } from '@documenso/prisma/client';
@@ -14,21 +11,27 @@ import { UserSecurityAuditLogType } from '@documenso/prisma/client';
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
   const { ipAddress, userAgent } = extractNextApiRequestMetadata(req);
 
-  const body = await req.body
-  const { inapp } = body;
+  // Ensure we're reading from the correct part of the request
+  const inapp = req.body?.inapp ?? req.query?.inapp ?? false;
 
-  const options = inapp ? NEXT_AUTH_OPTIONS : NEXT_AUTH_OPTIONS_NEW;
+  // Convert to boolean if it's a string
+  const isInApp = inapp === true || inapp === 'true';
 
-  const errorPage = inapp ? '/signin/inapp' : '/signin';
-  const signInPage = inapp ? '/signin/inapp' : '/signin';
+  console.log('Received inapp value:', isInApp);
 
+  const selectedOptions = isInApp ? NEXT_AUTH_OPTIONS : NEXT_AUTH_OPTIONS_NEW;
+  const basePath = isInApp ? '/signin/inapp' : '/signin';
+
+  console.log('Using options:', isInApp ? 'NEXT_AUTH_OPTIONS' : 'NEXT_AUTH_OPTIONS_NEW');
+  console.log('errorPage:', basePath);
+  console.log('signInPage:', basePath);
 
   return await NextAuth(req, res, {
-    ...options,
+    ...selectedOptions,
     pages: {
-      signIn: signInPage,
+      signIn: basePath,
       signOut: '/signout',
-      error: errorPage,
+      error: basePath,
     },
     events: {
       signIn: async ({ user: { id: userId } }) => {
@@ -38,6 +41,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
               id: userId,
             },
           }),
+
           await prisma.userSecurityAuditLog.create({
             data: {
               userId,
@@ -48,7 +52,6 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           }),
         ]);
 
-        // Create the Stripe customer and attach it to the user if it doesn't exist.
         if (user.customerId === null && IS_BILLING_ENABLED()) {
           await getStripeCustomerByUser(user).catch((err) => {
             console.error(err);
@@ -72,8 +75,6 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
         });
       },
       linkAccount: async ({ user }) => {
-
-
         const userId = typeof user.id === 'string' ? parseInt(user.id) : user.id;
 
         if (isNaN(userId)) {
@@ -100,7 +101,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
         });
 
         if (existingAccount) {
-          return
+          return;
         }
 
         const newAccount = {
@@ -125,8 +126,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
         await prisma.account.create({
           data: newAccount,
         });
-
-      }
-    }
+      },
+    },
   });
 }
