@@ -7,6 +7,7 @@ export const ZTriggerWebhookBodySchema = z.object({
   data: z.unknown(),
   userId: z.number(),
   teamId: z.number().optional(),
+  email: z.string().optional(),
 });
 
 export type TTriggerWebhookBodySchema = z.infer<typeof ZTriggerWebhookBodySchema>;

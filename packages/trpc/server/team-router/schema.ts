@@ -58,6 +58,7 @@ export const ZCreateTeamBillingPortalMutationSchema = z.object({
 export const ZCreateTeamMutationSchema = z.object({
   teamName: ZTeamNameSchema,
   teamUrl: ZTeamUrlSchema,
+  cal: z.boolean(),
   templateIds: z.array(z.number()),
 });
 
@@ -75,6 +76,17 @@ export const ZCreateTeamMemberInvitesMutationSchema = z.object({
       role: z.nativeEnum(TeamMemberRole),
     }),
   ),
+});
+
+export const ZgenerateInviteLinkMutationSchema = z.object({
+  teamId: z.number(),
+  role: z.nativeEnum(TeamMemberRole),
+  email: z.string().email().toLowerCase().optional(),
+  token: z.string().optional(),
+});
+
+export const ZVerifyInviteLinkQuerySchema = z.object({
+  token: z.string(),
 });
 
 export const ZCreateTeamPendingCheckoutMutationSchema = z.object({
@@ -145,6 +157,7 @@ export const ZUpdateTeamMutationSchema = z.object({
   data: z.object({
     name: ZTeamNameSchema,
     url: ZTeamUrlSchema,
+    cal: z.boolean(),
   }),
 });
 

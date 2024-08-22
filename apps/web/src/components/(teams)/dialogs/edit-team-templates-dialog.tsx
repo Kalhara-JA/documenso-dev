@@ -26,7 +26,7 @@ import { Checkbox } from '@documenso/ui/primitives/checkbox';
 import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-component-session';
 import { findTemplates } from '@documenso/lib/server-only/template/find-templates';
 import { editTeamTemplates } from '@documenso/lib/server-only/team/edit-team-templates';
-import { Template } from '@documenso/prisma/client';
+import type { Template } from '@documenso/prisma/client';
 
 export type TeamTemplateEditDialogProps = {
   teamId: number;

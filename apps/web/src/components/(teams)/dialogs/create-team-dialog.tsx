@@ -37,7 +37,7 @@ import { Checkbox } from '@documenso/ui/primitives/checkbox';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 import { getRequiredServerComponentSession } from '@documenso/lib/next-auth/get-server-component-session';
 import { findTemplates } from '@documenso/lib/server-only/template/find-templates';
-import { Template } from '@documenso/prisma/client';
+import type { Template } from '@documenso/prisma/client';
 
 export type CreateTeamDialogProps = {
   trigger?: React.ReactNode;
@@ -46,6 +46,7 @@ export type CreateTeamDialogProps = {
 const ZCreateTeamFormSchema = ZCreateTeamMutationSchema.pick({
   teamName: true,
   teamUrl: true,
+  cal: true,
   templateIds: true,
 });
 
@@ -69,6 +70,7 @@ export const CreateTeamDialog = ({ trigger, ...props }: CreateTeamDialogProps) =
     defaultValues: {
       teamName: '',
       teamUrl: '',
+      cal: false,
       templateIds: [],
     },
   });
@@ -99,12 +101,13 @@ export const CreateTeamDialog = ({ trigger, ...props }: CreateTeamDialogProps) =
     }
   }, [open]);
 
-  const onFormSubmit = async ({ teamName, teamUrl, templateIds }: TCreateTeamFormSchema) => {
+  const onFormSubmit = async ({ teamName, teamUrl, templateIds, cal }: TCreateTeamFormSchema) => {
     try {
       console.log({ teamName, teamUrl, templateIds });
       const response = await createTeam({
         teamName,
         teamUrl,
+        cal,
         templateIds,
       });
 
@@ -222,12 +225,28 @@ export const CreateTeamDialog = ({ trigger, ...props }: CreateTeamDialogProps) =
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    control={form.control}
+                    name="cal"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel className='ml-2'>Add users to cal</FormLabel>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </>
               )}
 
               {step === 2 && (
                 <>
-                  {/* <FormLabel required>Templates</FormLabel> */}
                   {templates.map((template) => (
                     <FormField
                       key={template.id}

@@ -37,6 +37,8 @@ export const sendDocument = async ({
   teamId,
   requestMetadata,
 }: SendDocumentOptions) => {
+  console.log('Starting sendDocument process', { documentId, userId, teamId });
+
   const user = await prisma.user.findFirstOrThrow({
     where: {
       id: userId,
@@ -47,6 +49,7 @@ export const sendDocument = async ({
       email: true,
     },
   });
+  console.log('User fetched:', user);
 
   const document = await prisma.document.findUnique({
     where: {
@@ -73,6 +76,7 @@ export const sendDocument = async ({
       documentData: true,
     },
   });
+  console.log('Document fetched:', document);
 
   const customEmail = document?.documentMeta;
 
@@ -96,17 +100,20 @@ export const sendDocument = async ({
 
   if (document.formValues) {
     const file = await getFile(documentData);
+    console.log('File fetched for form values insertion:', file);
 
     const prefilled = await insertFormValuesInPdf({
       pdf: Buffer.from(file),
       formValues: document.formValues as Record<string, string | number | boolean>,
     });
+    console.log('Form values inserted into PDF:', prefilled);
 
     const newDocumentData = await putPdfFile({
       name: document.title,
       type: 'application/pdf',
       arrayBuffer: async () => Promise.resolve(prefilled),
     });
+    console.log('New document data after PDF upload:', newDocumentData);
 
     const result = await prisma.document.update({
       where: {
@@ -116,13 +123,17 @@ export const sendDocument = async ({
         documentDataId: newDocumentData.id,
       },
     });
+    console.log('Document updated with new data:', result);
 
     Object.assign(document, result);
   }
 
   await Promise.all(
     document.Recipient.map(async (recipient) => {
+      console.log('Processing recipient:', recipient);
+
       if (recipient.sendStatus === SendStatus.SENT || recipient.role === RecipientRole.CC) {
+        console.log('Skipping recipient, already sent or CC:', recipient);
         return;
       }
 
@@ -157,12 +168,20 @@ export const sendDocument = async ({
         role: recipient.role,
         selfSigner,
       });
+      console.log('Email template created:', template);
 
       const { actionVerb } = RECIPIENT_ROLES_DESCRIPTION[recipient.role];
 
       const emailSubject = selfSigner
         ? `Please ${actionVerb.toLowerCase()} your document`
         : `Please ${actionVerb.toLowerCase()} this document`;
+
+      console.log('Sending email to recipient:', {
+        email,
+        name,
+        emailSubject,
+        template,
+      });
 
       await prisma.$transaction(
         async (tx) => {
@@ -181,6 +200,7 @@ export const sendDocument = async ({
             html: render(template),
             text: render(template, { plainText: true }),
           });
+          console.log('Email sent to:', email);
 
           await tx.recipient.update({
             where: {
@@ -190,6 +210,7 @@ export const sendDocument = async ({
               sendStatus: SendStatus.SENT,
             },
           });
+          console.log('Recipient status updated:', recipient.id);
 
           await tx.documentAuditLog.create({
             data: createDocumentAuditLogData({
@@ -207,6 +228,7 @@ export const sendDocument = async ({
               },
             }),
           });
+          console.log('Document audit log created for recipient:', recipient.id);
         },
         { timeout: 30_000 },
       );
@@ -216,6 +238,7 @@ export const sendDocument = async ({
   const allRecipientsHaveNoActionToTake = document.Recipient.every(
     (recipient) => recipient.role === RecipientRole.CC,
   );
+  console.log('All recipients have no action to take:', allRecipientsHaveNoActionToTake);
 
   if (allRecipientsHaveNoActionToTake) {
     const updatedDocument = await updateDocument({
@@ -224,8 +247,10 @@ export const sendDocument = async ({
       teamId,
       data: { status: DocumentStatus.COMPLETED },
     });
+    console.log('Document marked as completed:', updatedDocument);
 
     await sealDocument({ documentId: updatedDocument.id, requestMetadata });
+    console.log('Document sealed:', updatedDocument.id);
 
     // Keep the return type the same for the `sendDocument` method
     return await prisma.document.findFirstOrThrow({
@@ -249,6 +274,7 @@ export const sendDocument = async ({
           data: {},
         }),
       });
+      console.log('Document audit log created for document sent:', document.id);
     }
 
     return await tx.document.update({
@@ -263,6 +289,7 @@ export const sendDocument = async ({
       },
     });
   });
+  console.log('Document updated to pending status:', updatedDocument);
 
   await triggerWebhook({
     event: WebhookTriggerEvents.DOCUMENT_SENT,
@@ -270,6 +297,7 @@ export const sendDocument = async ({
     userId,
     teamId,
   });
+  console.log('Webhook triggered for document sent:', updatedDocument.id);
 
   return updatedDocument;
 };

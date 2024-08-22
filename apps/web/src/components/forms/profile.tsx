@@ -26,14 +26,10 @@ import { useToast } from '@documenso/ui/primitives/use-toast';
 
 export const ZProfileFormSchema = z.object({
   name: z.string().trim().min(1, { message: 'Please enter a valid name.' }),
+  email: z.string().email({ message: 'Please enter a valid email address.' }),
   signature: z.string().min(1, 'Signature Pad cannot be empty'),
 });
 
-export const ZTwoFactorAuthTokenSchema = z.object({
-  token: z.string(),
-});
-
-export type TTwoFactorAuthTokenSchema = z.infer<typeof ZTwoFactorAuthTokenSchema>;
 export type TProfileFormSchema = z.infer<typeof ZProfileFormSchema>;
 
 export type ProfileFormProps = {
@@ -47,8 +43,9 @@ export const ProfileForm = ({ className, user }: ProfileFormProps) => {
   const { toast } = useToast();
 
   const form = useForm<TProfileFormSchema>({
-    values: {
+    defaultValues: {
       name: user.name ?? '',
+      email: user.email ?? '',
       signature: user.signature || '',
     },
     resolver: zodResolver(ZProfileFormSchema),
@@ -58,10 +55,11 @@ export const ProfileForm = ({ className, user }: ProfileFormProps) => {
 
   const { mutateAsync: updateProfile } = trpc.profile.updateProfile.useMutation();
 
-  const onFormSubmit = async ({ name, signature }: TProfileFormSchema) => {
+  const onFormSubmit = async ({ name, email, signature }: TProfileFormSchema) => {
     try {
       await updateProfile({
         name,
+        email,
         signature,
       });
 
@@ -84,7 +82,7 @@ export const ProfileForm = ({ className, user }: ProfileFormProps) => {
           title: 'An unknown error occurred',
           variant: 'destructive',
           description:
-            'We encountered an unknown error while attempting to sign you In. Please try again later.',
+            'We encountered an unknown error while attempting to update your profile. Please try again later.',
         });
       }
     }
@@ -111,12 +109,20 @@ export const ProfileForm = ({ className, user }: ProfileFormProps) => {
             )}
           />
 
-          <div>
-            <Label htmlFor="email" className="text-muted-foreground">
-              Email
-            </Label>
-            <Input id="email" type="email" className="bg-muted mt-2" value={user.email} disabled />
-          </div>
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input type="email" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="signature"

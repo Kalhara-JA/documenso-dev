@@ -25,15 +25,56 @@ export const MobileNavigation = ({ isMenuOpen, onMenuOpenChange }: MobileNavigat
   };
 
   const rootHref = getRootHref(params, { returnEmptyRootString: true });
+// <<<<<<< feature/kalhara
+//   const applicationRoutes = [
+//     {
+//       href: '/documents',
+//       label: 'Documents',
+//     },
+//     {
+//       href: '/templates',
+//       label: 'Templates',
+//     },
+//   ];
+//   const globalRoutes = [
+//     {
+//       href: `${rootHref}/documents`,
+//       text: 'Home',
+//     },
+//     {
+//       href: `${rootHref}/templates`,
+//       text: 'About',
+//     },
+//     {
+//       href: '/settings/teams',
+//       text: 'Service',
+//     },
+//     {
+//       href: '/settings/profile',
+//       text: 'Contact Us',
+//     },
+//     {
+//       href: '/settings/teams',
+//       text: 'User Settings',
+//     },
+//     {
+//       href: '/settings/profile',
+//       text: 'Admin Panel',
+//     },
+//   ];
+// =======
 
 
 
   const { menuNavigationLinks: globalRoutes } = useLinks();
+// >>>>>>> dev-new
 
   return (
     <Sheet open={isMenuOpen} onOpenChange={onMenuOpenChange}>
       <SheetContent className="flex w-full max-w-[350px] flex-col">
+
         <div className="mt-8 flex w-full flex-col items-start gap-y-4">
+
           {globalRoutes.map(({ href, text }) => (
             <Link
               key={href}
@@ -44,7 +85,9 @@ export const MobileNavigation = ({ isMenuOpen, onMenuOpenChange }: MobileNavigat
               {text}
             </Link>
           ))}
+
         </div>
+      
       </SheetContent>
     </Sheet>
   );

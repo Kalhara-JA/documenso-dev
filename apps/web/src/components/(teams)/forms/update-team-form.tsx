@@ -21,22 +21,25 @@ import {
   FormMessage,
 } from '@documenso/ui/primitives/form/form';
 import { Input } from '@documenso/ui/primitives/input';
+import { Checkbox } from '@documenso/ui/primitives/checkbox';
 import { useToast } from '@documenso/ui/primitives/use-toast';
 
 export type UpdateTeamDialogProps = {
   teamId: number;
   teamName: string;
   teamUrl: string;
+  cal: boolean;
 };
 
 const ZUpdateTeamFormSchema = ZUpdateTeamMutationSchema.shape.data.pick({
   name: true,
   url: true,
+  cal: true,
 });
 
 type TUpdateTeamFormSchema = z.infer<typeof ZUpdateTeamFormSchema>;
 
-export const UpdateTeamForm = ({ teamId, teamName, teamUrl }: UpdateTeamDialogProps) => {
+export const UpdateTeamForm = ({ teamId, teamName, teamUrl, cal }: UpdateTeamDialogProps) => {
   const router = useRouter();
 
   const { toast } = useToast();
@@ -46,17 +49,19 @@ export const UpdateTeamForm = ({ teamId, teamName, teamUrl }: UpdateTeamDialogPr
     defaultValues: {
       name: teamName,
       url: teamUrl,
+      cal: cal,
     },
   });
 
   const { mutateAsync: updateTeam } = trpc.team.updateTeam.useMutation();
 
-  const onFormSubmit = async ({ name, url }: TUpdateTeamFormSchema) => {
+  const onFormSubmit = async ({ name, url, cal }: TUpdateTeamFormSchema) => {
     try {
       await updateTeam({
         data: {
           name,
           url,
+          cal
         },
         teamId,
       });
@@ -70,6 +75,7 @@ export const UpdateTeamForm = ({ teamId, teamName, teamUrl }: UpdateTeamDialogPr
       form.reset({
         name,
         url,
+        cal,
       });
 
       if (url !== teamUrl) {
@@ -131,6 +137,20 @@ export const UpdateTeamForm = ({ teamId, teamName, teamUrl }: UpdateTeamDialogPr
                   </span>
                 )}
 
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="cal"
+            render={({ field }) => (
+              <FormItem className="mt-4">
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <FormLabel className='ml-2'>Add users to cal</FormLabel>
                 <FormMessage />
               </FormItem>
             )}

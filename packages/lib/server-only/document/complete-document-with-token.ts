@@ -154,9 +154,19 @@ export const completeDocumentWithToken = async ({
 
   const updatedDocument = await getDocument({ token, documentId });
 
+  const webhookRecipient = {
+    id: updatedDocument.Recipient[0].id,
+    name: updatedDocument.Recipient[0].name,
+    email: updatedDocument.Recipient[0].email,
+    role: updatedDocument.Recipient[0].role,
+  };
+
+  console.log('Document signed', updatedDocument);
+
   await triggerWebhook({
     event: WebhookTriggerEvents.DOCUMENT_SIGNED,
     data: updatedDocument,
+    recipient: webhookRecipient,
     userId: updatedDocument.userId,
     teamId: updatedDocument.teamId ?? undefined,
   });

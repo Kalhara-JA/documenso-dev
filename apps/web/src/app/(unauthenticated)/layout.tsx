@@ -10,7 +10,9 @@ type UnauthenticatedLayoutProps = {
 
 export default function UnauthenticatedLayout({ children }: UnauthenticatedLayoutProps) {
   return (
+
     <main className="relative flex flex-col items-center justify-center overflow-hidden ">
+
       <div>
         <div className="absolute -inset-[min(600px,max(400px,60vw))] -z-[1] flex items-center justify-center opacity-70">
           <Image
@@ -19,7 +21,6 @@ export default function UnauthenticatedLayout({ children }: UnauthenticatedLayou
             className="dark:brightness-95 dark:contrast-[70%] dark:invert dark:sepia"
           />
         </div>
-
         <div className="relative w-full">{children}</div>
       </div>
     </main>

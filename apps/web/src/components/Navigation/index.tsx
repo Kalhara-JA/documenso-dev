@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -7,6 +8,7 @@ import { IMAGE_URL } from '~/utils/image_url';
 import { routes } from '~/utils/routes';
 
 import './navigation.css';
+
 
 interface NavigationProps {
   navOpen: boolean;
@@ -30,7 +32,9 @@ export const Navigation: React.FC<NavigationProps> = ({
   setIsLangBtnHovered,
 }) => {
   return (
+
     <nav className="dark mx-auto flex w-full items-center justify-between pr-[10px] main-nav">
+
       <div className="relative font-extrabold text-black">
         <Image
           loader={({ src }) => src}
@@ -38,30 +42,38 @@ export const Navigation: React.FC<NavigationProps> = ({
           height={70}
           width={120}
           objectFit="contain"
+
           className="h-[110px] w-[120px] object-contain 2xl:h-[100px] 2xl:w-[150px]"
           src={`${IMAGE_URL}/assets/day/logo.webp`}
         />
         <div
           className="absolute top-0 z-20 h-full w-full cursor-pointer rounded-full"
+
           onClick={() => {}}
         ></div>
       </div>
+
 
       <div className="mr-[10px] flex items-center gap-[25px]">
         <div className={classNames('relative', 'dark', 'hamburger-container', { navOpen })}>
           <div
             className="extra-nav absolute z-20 h-full w-full rounded-full duration-[800ms]"
+
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             onClick={() => setNavOpen(!navOpen)}
           ></div>
+
           <button className={classNames('menu__icon', { 'hovered-class': isHovered || navOpen })}>
+
             <span></span>
             <span></span>
           </button>
         </div>
 
+
         <div className={classNames('navigation', 'dark')}>
+
           <input
             type="checkbox"
             className="navigation__checkbox"
@@ -69,6 +81,7 @@ export const Navigation: React.FC<NavigationProps> = ({
             id="navi-toggle"
             readOnly
           />
+
 
           <div className={classNames('navigation__background', { navOpen })}>&nbsp;</div>
 
@@ -78,15 +91,18 @@ export const Navigation: React.FC<NavigationProps> = ({
               <div className={classNames('relative', 'dark', 'hamburger-container', { navOpen })}>
                 <div
                   className="extra-nav absolute z-20 h-20 w-20 rounded-full duration-[800ms]"
+
                   onMouseEnter={() => setIsHovered(true)}
                   onMouseLeave={() => setIsHovered(false)}
                   onClick={() => setNavOpen(!navOpen)}
                 ></div>
+
                 <button
                   className={classNames('menu__icon mr-8', {
                     'hovered-class': isHovered || navOpen,
                   })}
                 >
+
                   <span></span>
                   <span></span>
                 </button>

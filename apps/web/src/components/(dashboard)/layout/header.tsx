@@ -2,7 +2,6 @@
 
 import { type HTMLAttributes, useEffect, useState } from 'react';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
@@ -19,6 +18,7 @@ import { CommandMenu } from '../common/command-menu';
 import { DesktopNav } from './desktop-nav';
 import { MenuSwitcher } from './menu-switcher';
 import { MobileNavigation } from './mobile-navigation';
+import Image from 'next/image';
 
 export type HeaderProps = HTMLAttributes<HTMLDivElement> & {
   user: User;
@@ -52,6 +52,7 @@ export const Header = ({ className, user, teams, ...props }: HeaderProps) => {
       {...props}
     >
       <div className="mx-auto flex w-full max-w-screen-xl items-center justify-between gap-x-4 px-4 md:justify-normal md:px-8">
+
         <div className="flex items-center md:hidden">
           <Image
             width={168}
@@ -61,6 +62,7 @@ export const Header = ({ className, user, teams, ...props }: HeaderProps) => {
             alt="Logo"
           />
         </div>
+
 
         <DesktopNav setIsCommandMenuOpen={setIsCommandMenuOpen} />
 

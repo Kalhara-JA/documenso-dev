@@ -11,6 +11,7 @@ datasource db {
 enum IdentityProvider {
   DOCUMENSO
   GOOGLE
+  KEYCLOAK
 }
 
 enum Role {
@@ -27,6 +28,7 @@ model User {
   password             String?
   source               String?
   signature            String?
+  cal                  Boolean              @default(false)
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @default(now()) @updatedAt
   lastSignedIn         DateTime             @default(now())
@@ -142,6 +144,8 @@ enum WebhookTriggerEvents {
   DOCUMENT_OPENED
   DOCUMENT_SIGNED
   DOCUMENT_COMPLETED
+  TEAM_MEMBER_DELETED
+  USER_PROFILE_UPDATED
 }
 
 model Webhook {
@@ -442,12 +446,14 @@ enum TeamMemberRole {
 enum TeamMemberInviteStatus {
   ACCEPTED
   PENDING
+  EXPIRED
 }
 
 model Team {
   id                   Int                       @id @default(autoincrement())
   name                 String
   url                  String                    @unique
+  cal                  Boolean                   @default(false)
   createdAt            DateTime                  @default(now())
   customerId           String?                   @unique
   ownerUserId          Int
@@ -577,4 +583,14 @@ model SiteSettings {
   lastModifiedByUserId Int?
   lastModifiedAt       DateTime @default(now())
   lastModifiedByUser   User?    @relation(fields: [lastModifiedByUserId], references: [id], onDelete: SetNull)
+}
+
+model Invitation {
+  id        Int                    @id @default(autoincrement())
+  email     String?
+  token     String                 @unique
+  teamId    Int
+  teamRole  TeamMemberRole
+  status    TeamMemberInviteStatus @default(PENDING)
+  createdAt DateTime               @default(now())
 }

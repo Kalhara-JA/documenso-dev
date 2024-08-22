@@ -10,6 +10,7 @@ import { DOCUMENT_AUDIT_LOG_TYPE } from '../../types/document-audit-logs';
 import type { RequestMetadata } from '../../universal/extract-request-metadata';
 import { getFile } from '../../universal/upload/get-file';
 import { createDocumentAuditLogData } from '../../utils/document-audit-logs';
+import { $Enums } from '@documenso/prisma/client';
 
 export interface SendDocumentOptions {
   documentId: number;
@@ -44,16 +45,22 @@ export const sendCompletedEmail = async ({ documentId, requestMetadata }: SendDo
 
   const { User: owner } = document;
 
-  const completedDocument = await getFile(document.documentData);
+  const documentDataTemp = {
+    id: document.documentData.id,
+    type: $Enums.DocumentDataType.S3_PATH,
+    data: document.documentData.data,
+    initialData: document.documentData.initialData,
+  };
+
+  const completedDocument = await getFile(documentDataTemp);
 
   const assetBaseUrl = NEXT_PUBLIC_WEBAPP_URL() || 'http://localhost:3000';
 
   let documentOwnerDownloadLink = `${NEXT_PUBLIC_WEBAPP_URL()}/documents/${document.id}`;
 
   if (document.team?.url) {
-    documentOwnerDownloadLink = `${NEXT_PUBLIC_WEBAPP_URL()}/t/${document.team.url}/documents/${
-      document.id
-    }`;
+    documentOwnerDownloadLink = `${NEXT_PUBLIC_WEBAPP_URL()}/t/${document.team.url}/documents/${document.id
+      }`;
   }
 
   // If the document owner is not a recipient then send the email to them separately

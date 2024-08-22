@@ -1,9 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-
 import NextAuth from 'next-auth';
-
 import { getStripeCustomerByUser } from '@documenso/ee/server-only/stripe/get-customer';
 import { IS_BILLING_ENABLED } from '@documenso/lib/constants/app';
+import { NEXT_AUTH_OPTIONS as NEXT_AUTH_OPTIONS_NEW } from '@documenso/lib/next-auth/auth-options-new';
 import { NEXT_AUTH_OPTIONS } from '@documenso/lib/next-auth/auth-options';
 import { extractNextApiRequestMetadata } from '@documenso/lib/universal/extract-request-metadata';
 import { prisma } from '@documenso/prisma';
@@ -12,12 +11,27 @@ import { UserSecurityAuditLogType } from '@documenso/prisma/client';
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
   const { ipAddress, userAgent } = extractNextApiRequestMetadata(req);
 
+  // Ensure we're reading from the correct part of the request
+  const inapp = req.body?.inapp ?? req.query?.inapp ?? false;
+
+  // Convert to boolean if it's a string
+  const isInApp = inapp === true || inapp === 'true';
+
+  console.log('Received inapp value:', isInApp);
+
+  const selectedOptions = isInApp ? NEXT_AUTH_OPTIONS : NEXT_AUTH_OPTIONS_NEW;
+  const basePath = isInApp ? '/signin/inapp' : '/signin';
+
+  console.log('Using options:', isInApp ? 'NEXT_AUTH_OPTIONS' : 'NEXT_AUTH_OPTIONS_NEW');
+  console.log('errorPage:', basePath);
+  console.log('signInPage:', basePath);
+
   return await NextAuth(req, res, {
-    ...NEXT_AUTH_OPTIONS,
+    ...selectedOptions,
     pages: {
-      signIn: '/signin',
+      signIn: basePath,
       signOut: '/signout',
-      error: '/signin',
+      error: basePath,
     },
     events: {
       signIn: async ({ user: { id: userId } }) => {
@@ -27,6 +41,7 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
               id: userId,
             },
           }),
+
           await prisma.userSecurityAuditLog.create({
             data: {
               userId,
@@ -37,7 +52,6 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
           }),
         ]);
 
-        // Create the Stripe customer and attach it to the user if it doesn't exist.
         if (user.customerId === null && IS_BILLING_ENABLED()) {
           await getStripeCustomerByUser(user).catch((err) => {
             console.error(err);
@@ -74,6 +88,43 @@ export default async function auth(req: NextApiRequest, res: NextApiResponse) {
             userAgent,
             type: UserSecurityAuditLogType.ACCOUNT_SSO_LINK,
           },
+        });
+      },
+    },
+    adapter: {
+      ...NEXT_AUTH_OPTIONS.adapter,
+      linkAccount: async (account) => {
+        const existingAccount = await prisma.account.findFirst({
+          where: {
+            providerAccountId: account.providerAccountId,
+          },
+        });
+
+        if (existingAccount) {
+          return;
+        }
+
+        const newAccount = {
+          provider: account.provider,
+          providerAccountId: account.providerAccountId,
+          providerId: account.providerId,
+          userId: Number(account.userId),
+          type: account.type,
+          refreshToken: account.refreshToken,
+          accessToken: account.accessToken,
+          accessTokenExpires: account.accessTokenExpires,
+          idToken: account.idToken,
+          idTokenExpires: account.idTokenExpires,
+          scope: account.scope,
+          tokenType: account.tokenType,
+          sessionState: account.sessionState,
+          oauthToken: account.oauthToken,
+          oauthTokenSecret: account.oauthTokenSecret,
+          oauthTokenExpires: account.oauthTokenExpires,
+        };
+
+        await prisma.account.create({
+          data: newAccount,
         });
       },
     },

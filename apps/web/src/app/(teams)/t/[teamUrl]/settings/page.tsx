@@ -55,7 +55,7 @@ export default async function TeamsSettingsPage({ params }: TeamsSettingsPagePro
         transferVerification={team.transferVerification}
       />
 
-      <UpdateTeamForm teamId={team.id} teamName={team.name} teamUrl={team.url} />
+      <UpdateTeamForm teamId={team.id} teamName={team.name} teamUrl={team.url} cal={team.cal} />
 
       <section className="mt-6 space-y-6">
         {(team.teamEmail || team.emailVerification) && (

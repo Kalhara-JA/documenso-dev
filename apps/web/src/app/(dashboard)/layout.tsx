@@ -15,10 +15,29 @@ import { Header } from '~/components/(dashboard)/layout/header';
 import { VerifyEmailBanner } from '~/components/(dashboard)/layout/verify-email-banner';
 import { RefreshOnFocus } from '~/components/(dashboard)/refresh-on-focus/refresh-on-focus';
 import { NextAuthProvider } from '~/providers/next-auth';
+import { $Enums } from '@documenso/prisma/client';
+// import GlobalMenu from '~/components/(dashboard)/global-header';
 
 export type AuthenticatedDashboardLayoutProps = {
   children: React.ReactNode;
 };
+
+
+interface Team {
+  currentTeamMember: {
+    role: $Enums.TeamMemberRole;
+  };
+  id: number;
+  name: string;
+  cal:false;
+  url: string;
+  createdAt: Date;
+  customerId: string | null;
+  ownerUserId: number;
+}
+
+type InitialTeamsData = Team[];
+
 
 export default async function AuthenticatedDashboardLayout({
   children,
@@ -38,9 +57,9 @@ export default async function AuthenticatedDashboardLayout({
     <NextAuthProvider session={session}>
       <LimitsProvider>
         {!user.emailVerified && <VerifyEmailBanner email={user.email} />}
-
+        {/* <GlobalMenu user={user} teams={teams}></GlobalMenu> */}
         <Banner />
-        <GlobalHeader user={user} teams={teams} />
+        <GlobalHeader user={user} teams={teams as InitialTeamsData} />
 
         <Header user={user} teams={teams} />
 

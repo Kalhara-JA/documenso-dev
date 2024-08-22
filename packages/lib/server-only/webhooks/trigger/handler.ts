@@ -4,6 +4,7 @@ import { verify } from '../../crypto/verify';
 import { getAllWebhooksByEventTrigger } from '../get-all-webhooks-by-event-trigger';
 import { executeWebhook } from './execute-webhook';
 import { ZTriggerWebhookBodySchema } from './schema';
+import { $Enums } from '@documenso/prisma/client';
 
 export type HandlerTriggerWebhooksResponse =
   | {
@@ -43,7 +44,37 @@ export const handlerTriggerWebhooks = async (
   const { event, data, userId, teamId } = result.data;
   console.log('data_webhook', data);
 
+  if (event === 'USER_PROFILE_UPDATED') {
+    const allWebhooks = [
+      {
+        id: "userupdatewebhookid",
+        webhookUrl: 'http://162.55.161.102:3003/api/v1/users/update?apiKey=cal_a3a43e15827b938fe978cc79625b3a61',
+        eventTriggers: [$Enums.WebhookTriggerEvents.USER_PROFILE_UPDATED],
+        secret: null,
+        enabled: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        userId: userId,
+        teamId: null,
+      },
+    ]
+    console.log('allWebhooks', allWebhooks);
+
+    await Promise.allSettled(
+      allWebhooks.map(async (webhook) =>
+        executeWebhook({
+          event,
+          webhook,
+          data,
+        }),
+      ),
+    );
+
+    return res.status(200).json({ success: true, message: 'Webhooks executed successfully' });
+  }
+
   const allWebhooks = await getAllWebhooksByEventTrigger({ event, userId, teamId });
+  console.log('allWebhooks', allWebhooks);
 
   await Promise.allSettled(
     allWebhooks.map(async (webhook) =>

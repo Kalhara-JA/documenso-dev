@@ -14,8 +14,7 @@ export type ExecuteWebhookOptions = {
 
 export const executeWebhook = async ({ event, webhook, data }: ExecuteWebhookOptions) => {
   const { webhookUrl: url, secret } = webhook;
-
-  console.log('Executing webhook', { event, url });
+  console.log('Executing webhook', { event, url ,data});
 
   const payload = {
     event,
@@ -23,6 +22,8 @@ export const executeWebhook = async ({ event, webhook, data }: ExecuteWebhookOpt
     createdAt: new Date().toISOString(),
     webhookEndpoint: url,
   };
+
+  console.log('Payload', payload);
 
   const response = await fetch(url, {
     method: 'POST',
@@ -32,6 +33,8 @@ export const executeWebhook = async ({ event, webhook, data }: ExecuteWebhookOpt
       'X-Documenso-Secret': secret ?? '',
     },
   });
+
+  console.log('Response', response);
 
   const body = await response.text();
 

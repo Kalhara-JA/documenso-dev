@@ -65,11 +65,12 @@ export const profileRouter = router({
     .input(ZUpdateProfileMutationSchema)
     .mutation(async ({ input, ctx }) => {
       try {
-        const { name, signature } = input;
+        const { name, email, signature } = input;
 
         return await updateProfile({
           userId: ctx.user.id,
           name,
+          email,
           signature,
           requestMetadata: extractNextApiRequestMetadata(ctx.req),
         });

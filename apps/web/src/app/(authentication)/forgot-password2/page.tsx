@@ -1,10 +1,13 @@
 // ForgetPass.tsx
 "use client";
-import { useForm, SubmitHandler } from 'react-hook-form';
+import type { SubmitHandler } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
+
 import { ReactNode, useState } from 'react';
+
 import { Navigation } from '~/components/Navigation';
 
 const loginSchema = z.object({
@@ -33,14 +36,24 @@ const ForgetPass = () => {
     console.log('Form submitted:', data);
     // loginCheck(data.email, data.password);
   };
+  const [langBtnState , setLangBtnState]= useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [navOpen , setNavOpen] = useState<boolean>(false);
+  const [isLangBtnHovered , setIsLangBtnHovered] = useState(false);
+
+
+  const [langOpen , setLangOpen] = useState<boolean>(false);
+
 
   return (
     <section>
+
       <div className='custom-container'>
         <Navigation navOpen={navOpen} langOpen={langOpen} setLangOpen={setLangOpen} setNavOpen={setNavOpen} isHovered={isHovered} setIsHovered={setIsHovered} isLangBtnHovered={isLangBtnHovered} setIsLangBtnHovered={setIsLangBtnHovered} />
       </div>
       <div className="flex flex-col items-center justify-center mt-[50px] px-6 py-8 mx-auto lg:py-0 cera-pro-font no-65">
         <div className="w-full bg-white rounded-lg shadow-xl md:mt-0 sm:max-w-md xl:p-0">
+
           <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
             <h1 className="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
               Forget Password
@@ -51,7 +64,7 @@ const ForgetPass = () => {
                   htmlFor="email"
                   className="block mb-2 text-sm font-light text-gray-900"
                 >
-                  Email Address
+                  Your Email
                 </label>
                 <input
                   {...register('email')}
@@ -66,6 +79,7 @@ const ForgetPass = () => {
                 )}
               </div>
               <button type="submit" className="btn-primary w-full bg-[#2ae8d3] ">
+
                 Send reset email
               </button>
 
